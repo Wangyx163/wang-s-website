@@ -1,0 +1,88 @@
+/* 共享：AI 回答里的印 */
+.aistamp{display:inline-block;padding:1px 5px;border:1.5px solid var(--marker);border-radius:3px;color:var(--marker);font:600 10.5px/1.2 'Noto Sans SC';letter-spacing:.08em;rotate:-4deg;-webkit-mask-image:var(--grit);mask-image:var(--grit);-webkit-mask-size:90px;mask-size:90px}
+
+/* ── A：扉页「问我」 ── */
+.idrow.ask dd{overflow:visible}
+.askf{margin:0}
+.askin{width:100%;height:36px;padding:0;border:0;background:none;outline:none;font:400 23px/36px 'Caveat','Long Cang',cursive;color:#3B403C}
+.askin::placeholder{color:rgba(59,64,60,.42)}
+.askin:focus-visible{outline:none}
+.idrow.ask:focus-within dd{border-bottom-color:#2C4A7B;border-bottom-style:solid}
+.asksug{position:relative;margin:8px 0 0 62px;font:400 13px/1 'Noto Sans SC';color:#8A8C86}
+.asksug button{margin:0 2px;padding:3px 6px;border:0;border-radius:4px;background:none;font:700 18px/1 'Caveat','Long Cang',cursive;color:#5F625C;cursor:pointer;text-decoration:underline dotted;text-underline-offset:4px}
+@media (hover:hover) and (pointer:fine){.asksug button:hover{color:#2C4A7B}}
+.aislot{left:50%;top:668px;width:400px;margin-left:-226px;z-index:3}
+.slips{position:relative}
+.slip{position:relative;width:360px;padding:30px 22px 16px;background:#FDFCF7;color:#2E302C;box-shadow:var(--sh);rotate:var(--r,-1.2deg);animation:slipIn 360ms var(--eo)}
+.slip{z-index:3}.slip+.slip{z-index:2}.slip+.slip{margin-top:-58px;opacity:.9;scale:.97;translate:14px 0;filter:brightness(.98)}
+.slip .pin{left:50%;top:9px;margin-left:-8px}
+@keyframes slipIn{from{translate:0 -16px;opacity:0}}
+.sq{margin:0 0 6px;font:400 13px/1.5 'Noto Sans SC';color:#6B6E67}
+.sa{margin:0;min-height:30px;font:400 22px/1.45 'Long Cang','Caveat',serif;color:#2C4A7B}
+.sa.thinking{color:#9A9C95}
+.sf{display:flex;justify-content:space-between;align-items:center;margin:10px 0 0;font:400 11px/1 'IBM Plex Mono',monospace;color:#8C8E87}
+
+
+/* ── 构图 v6：名字居中，周围错落 ── */
+.home{height:960px}
+.home:has(.rx1:not([hidden])),.home:has(.rx3:not([hidden])){height:1220px}
+.hname{left:50%;top:300px;width:700px;margin-left:-350px;text-align:center;z-index:5}
+.nm{margin:0;font:400 100px/1.2 'Homemade Apple',cursive;color:var(--ink);transform-origin:50% 60%;white-space:nowrap}
+.tag{margin:8px 0 0;font:500 15px/1.6 'Noto Serif SC',serif;letter-spacing:.16em;color:var(--ink2)}
+.askline{position:relative;display:inline-flex;align-items:baseline;gap:14px;margin:30px auto 0;padding:0 2px 8px}
+.askline label{font:700 21px/1 'Caveat','Long Cang',cursive;color:var(--ink2);white-space:nowrap}
+.askline .askin{width:280px;height:34px;padding:0;border:0;background:none;outline:none;font:400 23px/34px 'Caveat','Long Cang',cursive;color:var(--ink)}
+.askline .askin::placeholder{color:color-mix(in srgb,var(--ink2) 55%,transparent)}
+.askul{position:absolute;left:0;right:0;bottom:0;width:100%;height:10px;overflow:visible;pointer-events:none}
+.askul path{fill:none;stroke:var(--ink2);stroke-width:1.4;stroke-linecap:round;vector-effect:non-scaling-stroke;transition:stroke 160ms ease}
+.askline:focus-within .askul path{stroke:var(--marker);stroke-width:1.8}
+.hname .asksug{margin:8px 0 0;text-align:center}
+.hname .asksug button{color:var(--ink2)}
+.hname .aislot{position:absolute;left:50%;top:calc(100% + 14px);width:392px;margin:0 0 0 -196px;text-align:left}
+.hname .rx2{justify-content:center;margin:22px 0 0;padding-top:0;border-top:0}
+.hname .rbox{color:var(--ink2)}.hname .rbox .bx{border-color:var(--ink2)}
+.hname .rx4{position:static;justify-content:center;gap:14px;margin:24px 0 0}
+.hname .rpin em{color:var(--ink2)}
+.nm.kicked{animation:kick2 560ms cubic-bezier(.34,1.56,.64,1)}
+@keyframes kick2{0%{translate:0 0;rotate:0deg}18%{translate:18px -8px;rotate:3deg}40%{translate:-8px 3px;rotate:-2deg}65%{translate:4px 0;rotate:1deg}100%{translate:0 0;rotate:0deg}}
+/* 左上：最近小票 */
+.hlog{left:2.2%;top:34px;width:264px;rotate:-5deg}
+/* 工牌：从顶边垂下来 */
+.hbadge{left:21%;top:-30px;width:140px;rotate:5deg;z-index:3;display:block;text-decoration:none;color:inherit;transform-origin:70px 0;transition:rotate 520ms cubic-bezier(.34,1.56,.64,1)}
+.hbadge .lan{height:70px}.hbadge .mcard{width:140px;height:194px}
+@media (hover:hover) and (pointer:fine){.hbadge:hover{rotate:-3deg}}
+/* 左中：照片 */
+.hphotos{left:-1.2%;top:300px;width:340px;rotate:-9deg}
+.hphotos .pile{--pw:268px;height:330px}
+.hphotos .door{position:absolute;left:128px;top:-40px;rotate:-3deg}
+.pcount{display:none}
+/* 左下：卡片，压在照片下角 */
+.hcards{left:12%;top:612px;width:300px;rotate:7deg;z-index:2}
+.hcards .door{margin-left:150px}
+/* 右上：磁带，出一点画框 */
+.hplayer{right:-1.6%;top:26px;width:380px;rotate:-9deg}
+.hplayer .player{zoom:.594}
+/* 右中：走带机 */
+.hdeck{right:.6%;top:352px;width:340px;rotate:3.5deg}
+.hdeck .deck{zoom:.53;width:640px}
+.hdeck .playcap{margin:8px 0 0;font-size:18px;rotate:-3deg}
+.hdeck .flipb{margin-top:8px}
+.hdeck .tscript{left:-10px;top:calc(100% + 6px)}
+/* 右下：书 */
+.hbooks{right:6%;top:640px;width:340px;rotate:-9deg}
+.hbooks .books{zoom:.55}
+.home .door{font-size:19px}
+.rxzone{left:50%;top:950px;width:620px;margin-left:-310px}
+/* 工具托盘默认收起 */
+.traytog{position:fixed;right:20px;bottom:20px;z-index:56;display:flex;align-items:center;gap:8px;height:52px;padding:0 16px 0 10px;border:0;border-radius:26px;background:light-dark(#ECE8DF,#2A2B28);color:light-dark(#5F625C,#C9C5BB);font:700 19px/1 'Caveat','Long Cang',cursive;cursor:pointer;box-shadow:inset 0 -1px 0 rgba(0,0,0,.08),0 1px 1px rgba(28,22,14,.2),0 12px 24px -12px rgba(28,22,14,.38)}
+.traytog svg{width:34px;height:34px}
+.traytog[hidden]{display:none}
+.traytog:active{scale:.97}
+@media (max-width:1240px){.nm{font-size:92px}}
+@media (max-width:899px){
+  .hname{width:100%;margin-left:0}.nm{font-size:clamp(46px,13vw,80px);padding:0}
+  .askline{flex-wrap:wrap;justify-content:center}.askline .askin{width:min(260px,70vw)}
+  .hname .aislot{position:relative;left:auto;top:auto;margin:20px auto 0;width:min(392px,100%)}
+  .hbadge{order:9}.hplayer .player{zoom:1}.hplayer,.hdeck{width:auto}.hdeck .deck{zoom:1;width:min(640px,92vw)}
+  .traytog{right:12px;bottom:12px}
+}

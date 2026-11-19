@@ -1,0 +1,50 @@
+<body>
+<a class="skip" href="#main">跳到内容</a>
+<header class="menubar">
+  <a class="sig" href="#top">Your Name</a>
+  <nav class="nav" aria-label="主导航">
+    <a href="#top" data-nav="desk"><span class="tx">Desk</span></a>
+    <a href="#mind" data-nav="mind"><span class="tx">Mind</span></a>
+    <a href="#shelf" data-nav="shelf"><span class="tx">Shelf</span></a>
+    <a href="#about" data-nav="about"><span class="tx">About</span></a>
+  </nav>
+</header>
+<div class="sel" id="sel" aria-hidden="true"><i></i><i></i><i></i><i></i><b id="selname"></b><em id="seldim"></em></div>
+
+<main id="main">
+<section class="hero" id="top" data-nav="desk" aria-label="一盘磁带">
+  <div class="player">
+    <button class="cassette" id="cassette" aria-label="磁带：点一下播放，再点一下停止"></button>
+    <div class="deck" id="deck">
+      <div class="meters" aria-hidden="true"><svg class="vu" id="vuL" viewBox="0 0 300 180"></svg><svg class="vu" id="vuR" viewBox="0 0 300 180"></svg></div>
+      <div class="ctl">
+        <div class="ctop">
+          <div class="counter" id="counter" role="img" aria-label="计数器 000"><span class="drum"><i></i></span><span class="drum"><i></i></span><span class="drum"><i></i></span></div>
+          <button class="rst" id="rst" aria-label="计数器归零"></button>
+        </div>
+        <div class="krow">
+          <span class="led" id="led" aria-hidden="true"></span>
+          <div class="keys" role="group" aria-label="走带键">
+            <button class="key" id="kRew" aria-pressed="false" aria-label="倒带"><svg viewBox="0 0 20 12"><path d="M9.5 0v12L0 6zM20 0v12L10.5 6z"/></svg></button>
+            <button class="key" id="kPlay" aria-pressed="false" aria-label="播放"><svg viewBox="0 0 20 12"><path d="M6 0v12l9.5-6z"/></svg></button>
+            <button class="key" id="kFf" aria-pressed="false" aria-label="快进"><svg viewBox="0 0 20 12"><path d="M0 0v12l9.5-6zM10.5 0v12L20 6z"/></svg></button>
+            <button class="key" id="kStop" aria-label="停止"><svg viewBox="0 0 20 12"><rect x="5" y="1" width="10" height="10"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="deckfoot"><span class="eng">Stereo cassette deck</span><span class="eng">4.8 cm/s</span></div>
+    </div>
+    <div class="note" id="note" aria-hidden="true">
+      <span>按 PLAY</span>
+      <svg viewBox="0 0 110 56"><path d="M96 4C84 26 58 40 16 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M26 35l-11 9 13 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="desk" data-nav="desk" aria-labelledby="h1x">
+  <div class="head">
+    <h2 id="h1x">照片</h2>
+    <p>一叠洗出来的相纸。把最上面那张拖开，或者点一下，就能看到下面一张。</p>
+  </div>
+  <div class="pile" id="pile" tabindex="0" role="group" aria-label="一叠照片，按回车看下一张，左方向键看上一张"></div>
+</section>

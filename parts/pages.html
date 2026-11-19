@@ -1,0 +1,226 @@
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="inkRough" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="2.2" numOctaves="1" seed="2" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.75" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></svg>
+<a class="skip" href="#main">跳到内容</a>
+<header class="menubar">
+  <a class="sig" href="#/" aria-label="Star Wang，回到画板">Star<i class="sigstar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12.3 2.4l2.6 6.2 6.6.5-5.1 4.3 1.6 6.5-5.7-3.6-5.6 3.7 1.6-6.5-5.1-4.2 6.6-.6z"/></svg></i>Wang</a>
+  <nav class="nav" aria-label="主导航">
+    <a href="#/" data-nav="desk"><span class="tx">Desk</span></a>
+    <a href="#/mind" data-nav="mind"><span class="tx">Mind</span></a>
+    <a href="#/shelf" data-nav="shelf"><span class="tx">Shelf</span></a>
+    <a href="#/projects" data-nav="projects"><span class="tx">Projects</span></a>
+    <a href="#/about" data-nav="about"><span class="tx">About</span></a>
+    <a href="#/inbox" data-nav="inbox" class="own" hidden><span class="tx">信箱</span><b class="nbadge" id="nbadge"></b></a>
+  </nav>
+</header>
+<div class="sel" id="sel" aria-hidden="true"><i></i><i></i><i></i><i></i><b id="selname"></b><em id="seldim"></em></div>
+
+<main id="main" tabindex="-1">
+<!-- Desk：首页 -->
+<section class="page" data-page="desk" aria-label="画板">
+  <div class="home" id="home">
+    <div class="hname hobj" data-id="name" data-name="名字">
+      <h1 class="nm">Star<span class="nmstar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12.3 2.4l2.6 6.2 6.6.5-5.1 4.3 1.6 6.5-5.7-3.6-5.6 3.7 1.6-6.5-5.1-4.2 6.6-.6z"/></svg></span> Wang</h1>
+      <p class="tag">脚踏实地，仰望星空</p>
+      <form class="askf askline" autocomplete="off">
+        <label for="askin">问问我的 AI 分身</label><span class="wip">预设版</span>
+        <input class="askin" id="askin" maxlength="60" placeholder="比如：你最近在读什么啊？">
+        <svg class="askul" viewBox="0 0 300 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6C60 3 120 8 180 5s90-2 116 1"/></svg>
+      </form>
+      <p class="asksug"><button type="button" data-q="你最近在读什么啊？">你最近在读什么啊？</button><button type="button" data-q="你又有什么新想法了？">你又有什么新想法了？</button><button type="button" data-q="介绍一下你自己吧？">介绍一下你自己吧？</button></p>
+      <div class="devbar askdev"><button type="button" class="devbtn" data-dev="qa-edit">编辑预设回答</button></div>
+      <div class="aislot">
+      <div class="slips" id="slips" aria-live="polite"></div>
+      </div>
+
+    </div>
+
+    <div class="hbadge hobj" data-id="badge" data-name="工牌">
+      <a class="bdlink" href="#/about" aria-label="工牌，去 About 页"></a><span class="lan"></span><span class="mclip"></span>
+      <span class="mcard"><i></i><img src="photos/avatar.jpg" alt=""><span class="rnrow"><span class="rn" aria-live="polite">●●●</span><button type="button" class="eye" aria-pressed="false" aria-label="显示真名"><svg class="eo" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ec" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4 20 20 4"/></svg></button></span></span>
+    </div>
+
+    <div class="hplayer hobj" data-id="tape" data-name="磁带">
+      <div class="player">
+        <button class="cassette" id="cassette" aria-label="磁带：点一下播放"></button>
+        <div class="note" id="note" aria-hidden="true"><span>按 PLAY</span><svg viewBox="0 0 110 56"><path d="M96 4C84 26 58 40 16 44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M26 35l-11 9 13 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+
+    </div>
+
+    <div class="hdeck hobj" data-id="deck" data-name="走带机">
+        <div class="deck" id="deck">
+        <div class="meters" aria-hidden="true"><svg class="vu" id="vuL" viewBox="0 0 300 180"></svg><svg class="vu" id="vuR" viewBox="0 0 300 180"></svg></div>
+        <div class="ctl">
+          <div class="ctop">
+            <div class="counter" id="counter" role="img" aria-label="计数器 000"><span class="drum"><i></i></span><span class="drum"><i></i></span><span class="drum"><i></i></span></div>
+            <button class="rst" id="rst" aria-label="计数器归零"></button>
+          </div>
+          <div class="krow">
+            <span class="led" id="led" aria-hidden="true"></span>
+            <div class="keys" role="group" aria-label="走带键">
+              <button class="key" id="kRew" aria-pressed="false" aria-label="倒带"><svg viewBox="0 0 20 12"><path d="M9.5 0v12L0 6zM20 0v12L10.5 6z"/></svg></button>
+              <button class="key" id="kPlay" aria-pressed="false" aria-label="播放"><svg viewBox="0 0 20 12"><path d="M6 0v12l9.5-6z"/></svg></button>
+              <button class="key" id="kFf" aria-pressed="false" aria-label="快进"><svg viewBox="0 0 20 12"><path d="M0 0v12l9.5-6zM10.5 0v12L20 6z"/></svg></button>
+              <button class="key" id="kStop" aria-label="停止"><svg viewBox="0 0 20 12"><rect x="5" y="1" width="10" height="10"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="deckfoot"><span class="eng">Stereo cassette deck</span><span class="eng">4.8 cm/s</span></div>
+      </div>
+      <p class="playcap">按 PLAY，听一段</p>
+    </div>
+
+    <div class="hphotos hobj" data-id="photos" data-name="照片">
+      <div class="pile" id="pile" tabindex="0" role="group" aria-label="一叠照片，按回车看下一张"></div>
+      <a class="door" href="#/photos">全部照片<svg viewBox="0 0 34 14" aria-hidden="true"><path d="M1 8c9-3 19-3 30-1M25 2l7 5-7 6"/></svg></a>
+    </div>
+
+    <div class="hcards hobj" data-id="cards" data-name="卡片">
+      <span class="pin b" aria-hidden="true"></span>
+      <div class="cstack" id="cstack" tabindex="0" role="group" aria-label="最近的卡片，按回车翻到下一张"></div>
+      <a class="door" href="#/mind">卡片盒<svg viewBox="0 0 34 14" aria-hidden="true"><path d="M1 8c9-3 19-3 30-1M25 2l7 5-7 6"/></svg></a>
+    </div>
+
+    <div class="hbooks hobj" data-id="books" data-name="在读">
+      <div class="shelf" id="homeBooks"></div>
+      <a class="door" href="#/shelf">书架<svg viewBox="0 0 34 14" aria-hidden="true"><path d="M1 8c9-3 19-3 30-1M25 2l7 5-7 6"/></svg></a>
+    </div>
+
+    <div class="hdiy hobj" data-id="diy" data-name="文具" role="group" aria-label="文具：拿一样，在画板上贴点什么">
+      <button type="button" class="dt roll" data-pick="tape" aria-label="拿胶带"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><pattern id="rollst" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="10" height="10" fill="#8C9A7E"/><rect width="5" height="10" fill="#A4B097"/></pattern></defs><path d="M60 98 L112 104 L111 116 L58 110Z" fill="#9AA68D" opacity=".85"/><circle cx="56" cy="58" r="46" fill="url(#rollst)"/><circle cx="56" cy="58" r="46" fill="none" stroke="rgba(0,0,0,.14)"/><circle cx="56" cy="58" r="24" fill="#E9E3D4"/><circle cx="56" cy="58" r="24" fill="none" stroke="#CFC6B2" stroke-width="5"/></svg></button>
+      <button type="button" class="dt sheet" data-pick="sticker" aria-label="拿贴纸"><svg viewBox="0 0 110 130" aria-hidden="true"><rect x="3" y="3" width="104" height="124" rx="4" fill="#FBFAF5" stroke="#DCD7CA"/><path d="M30 20l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z" fill="#E9B949" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M70 22c14-4 24 4 22 16-10 6-22 2-22-16z" fill="#7E9A6A" stroke="#fff" stroke-width="3"/><path d="M28 74c10-6 22-2 20 10s-20 22-24 18-6-22 4-28z" fill="#C8412B" stroke="#fff" stroke-width="3"/><circle cx="78" cy="90" r="15" fill="#2F4A8A" stroke="#fff" stroke-width="3"/><text x="78" y="95" text-anchor="middle" font-family="Caveat" font-size="15" font-weight="700" fill="#fff">hi</text></svg></button>
+      <button type="button" class="dt pen" data-pick="pencil" aria-label="拿记号笔"><svg viewBox="0 0 200 26" aria-hidden="true"><rect x="22" y="3" width="150" height="20" rx="4" fill="#2C2F2C"/><rect x="150" y="3" width="30" height="20" rx="3" fill="#C8412B"/><path d="M22 6 L6 13 L22 20Z" fill="#E7E2D6"/><path d="M8 12h-6v2h6z" fill="#C8412B"/><rect x="40" y="9" width="70" height="2" fill="#5E625C"/></svg></button>
+      <button type="button" class="dt pad" data-pick="note" aria-label="拿便签"><svg viewBox="0 0 90 90" aria-hidden="true"><rect x="8" y="10" width="76" height="74" fill="#E8D78A"/><rect x="4" y="5" width="76" height="74" fill="#F2E199"/><path d="M80 59v20H60z" fill="#E3CF7A"/></svg></button>
+      <button type="button" class="dlabel" id="dlabel">贴点什么</button>
+    </div>
+
+
+    <a class="hfilm" href="#/photos" data-go="photos" aria-label="胶卷：看全部照片"><img src="real/film.png" alt=""></a>
+
+    <div class="hrcpt hobj" data-id="recent" data-name="最近"><i class="rtape" aria-hidden="true"></i><div class="rp" id="rcpt"></div></div>
+
+    <div class="hticket hobj" data-id="ticket" data-name="入场券" data-st="idle">
+      <div class="pm">
+        <span class="pm-screw" aria-hidden="true"></span>
+        <button type="button" class="pm-btn" id="pmbtn" aria-describedby="pmwin"><span class="cap"></span><span class="lb">取票</span></button>
+        <span class="pm-led" aria-hidden="true"></span>
+        <span class="pm-win" id="pmwin">请取票</span>
+        <span class="pm-slit" aria-hidden="true"></span>
+        <button type="button" class="pm-snd" id="tksnd" aria-pressed="true">声音 开</button>
+        <span class="pm-screw" aria-hidden="true"></span>
+      </div>
+      <div class="pfeed"><div class="pass" id="pass"></div></div>
+      <p class="pguide g0" aria-hidden="true"><svg viewBox="0 0 90 60"><path d="M86 52C62 52 34 44 16 12M9 21 15 10l11 6"/></svg><span>按一下，取一张票</span></p>
+      <p class="pguide g1" aria-hidden="true"><span>签个名，再按住存根<br>往右下拉，撕下来带走</span><svg viewBox="0 0 120 70"><path d="M4 56C40 62 86 52 110 14M98 18l12-6 1 13"/></svg></p>
+      <p class="pnote" id="pnote" aria-live="polite"></p>
+      <button type="button" class="tearbtn" id="tearbtn" hidden>撕下存根</button>
+    </div>
+
+
+
+    <svg class="ink" id="ink" aria-hidden="true"></svg>
+    <div class="diy" id="diy"></div>
+  </div>
+</section>
+
+<!-- Desk / 照片 -->
+<section class="page" data-page="photos" aria-labelledby="pt-photos" hidden>
+  <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
+  <div class="ptitle"><h1 id="pt-photos">照片</h1></div>
+  <div class="sec" style="padding-top:28px"><div class="lt" id="lt"></div></div>
+</section>
+
+<!-- Mind -->
+<section class="page" data-page="mind" aria-labelledby="pt-mind" hidden>
+  <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
+  <div class="ptitle"><h1 id="pt-mind">卡片盒</h1><p>看到一句话、一个画面，或者冒出一个想法，就记一张卡。卡上先写原话或看到的东西，「我想到」是我当时的理解，「出处」记在哪儿遇见的。</p></div>
+  <div class="devbar mindbar"><button type="button" class="devbtn" data-dev="card-add">＋ 新卡片</button></div>
+  <div class="sec" style="padding-top:20px"><div class="cbox" id="cbox"></div></div>
+<section class="sec soon" id="mindSoon" aria-labelledby="h5soon"><h2 id="h5soon">Thoughts to Things</h2><p>稍后会对外开放哦……</p></section>
+{{MIND}}
+</section>
+
+<!-- Shelf -->
+<section class="page" data-page="shelf" aria-labelledby="pt-shelf" hidden>
+  <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
+  <div class="ptitle"><h1 id="pt-shelf">书架</h1><p>在读的、读过的、想读的。</p></div>
+  <div class="shbar"><div class="pjbar shf" role="group" aria-label="筛选" id="shf"></div><div class="devbar"><button type="button" class="devbtn" data-dev="book-add">＋ 加一本书</button></div></div>
+  <div class="shelfwrap" id="shelfBooks"></div>
+{{FOUND}}
+</section>
+
+<!-- About -->
+<section class="page" data-page="about" aria-labelledby="pt-about" hidden>
+  <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
+  <div class="sec about">
+{{RIG}}
+    <div class="bio">
+      <h1 id="pt-about">你好，我是 Wang</h1>
+      <dl class="contact"><dt>姓名</dt><dd><span class="rnrow"><span class="rn" aria-live="polite">●●●</span><button type="button" class="eye" aria-pressed="false" aria-label="显示真名"><svg class="eo" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ec" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4 20 20 4"/></svg></button></span></dd><dt>邮箱</dt><dd><a href="mailto:w_wangyi163@163.com">w_wangyi163@163.com</a></dd><dt>Google Scholar</dt><dd><a href="https://scholar.google.com/citations?user=dpUx9HgAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">学术主页 ↗</a></dd></dl>
+      <p class="hint">拽一下左边的工牌会晃，点一下翻到背面。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section class="page" data-page="projects" aria-labelledby="pt-proj" hidden>
+  <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
+  <div class="ptitle"><h1 id="pt-proj">Projects</h1><p>发过的论文，和正在做的东西。</p></div>
+  <div class="pjbar" role="group" aria-label="筛选"><button type="button" class="pjf on" data-f="all" aria-pressed="true">全部</button><button type="button" class="pjf" data-f="paper" aria-pressed="false">论文 <b>3</b></button><button type="button" class="pjf" data-f="build" aria-pressed="false">项目 <b>1</b></button></div>
+  <div class="pjboard" id="pjboard"></div>
+</section>
+
+<!-- 信箱：只有 Star 自己看得到 -->
+<section class="page" data-page="inbox" aria-labelledby="pt-inbox" hidden>
+  <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
+  <div class="ptitle"><h1 id="pt-inbox">信箱</h1><p id="ibsum">正在取信……</p></div>
+  <div class="ibwrap"><div class="ibstats" id="ibstats"></div><div class="iblist" id="iblist"></div></div>
+</section>
+</main>
+
+<div class="trayhint" id="trayhint" aria-live="polite"></div>
+<div class="sheet" id="sheet" role="group" aria-label="贴纸" hidden></div>
+<div class="toast" id="toast" role="status" hidden><span id="toastt"></span><button id="toastb">撤销</button></div>
+<button class="traytog" id="traytog" aria-expanded="false" aria-controls="tray"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 6l3 12M20 3v15M28 7l-3 11" stroke="#55635A" stroke-width="3" stroke-linecap="round"/><path d="M28 7l-1 4" stroke="#C8412B" stroke-width="3" stroke-linecap="round"/><path d="M20 3v3" stroke="#2E2F2D" stroke-width="3" stroke-linecap="round"/><path d="M8 17h24l-2.5 18h-19Z" fill="#C49D6E"/><path d="M8 17h24" stroke="#A47E52" stroke-width="2"/></svg><span>工具</span></button>
+<div class="tray" id="tray" role="toolbar" hidden aria-label="DIY 工具">
+  <button class="tool" data-tool="pencil" aria-pressed="false" aria-label="铅笔" title="铅笔"><svg viewBox="0 0 40 40"><g transform="rotate(-45 20 20)"><rect x="9" y="16" width="20" height="8" fill="#55635A"/><rect x="9" y="16" width="20" height="2.6" fill="#6E7D73"/><path d="M29 16l6 4-6 4Z" fill="#E3C79C"/><path d="M33 18.7l2 1.3-2 1.3Z" fill="#2E2F2D"/><rect x="5" y="16" width="4" height="8" fill="#B9B3A6"/><rect x="1.5" y="16.3" width="4" height="7.4" rx="1.6" fill="#D39383"/></g></svg></button>
+  <button class="tool" data-tool="tape" aria-pressed="false" aria-label="胶带" title="胶带"><svg viewBox="0 0 40 40"><path d="M5 16v7c0 5 6 9 14 9s14-4 14-9v-7Z" fill="#CF8E86"/><path d="M5 19c0 5 6 9 14 9s14-4 14-9" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1"/><ellipse cx="19" cy="16" rx="14" ry="9" fill="#E7A9A1"/><ellipse cx="19" cy="16" rx="8" ry="5" fill="#F4EFE4" stroke="#D9CBB4" stroke-width="1.4"/><path d="M27 30.5l10 2.5-1 4.5-10-2.5Z" fill="#E7A9A1"/><path d="M24 31.5c1.5-.3 2.6-.6 3.6-1" stroke="#CF8E86" stroke-width="1.2"/></svg></button>
+  <button class="tool" data-tool="sticker" aria-pressed="false" aria-label="贴纸" title="贴纸"><svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="3" fill="#FBFAF5" stroke="#D7D2C6"/><path d="M20 9l3.1 6.6 7.2.9-5.3 5 1.4 7.1L20 25.1l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9Z" fill="#F2C94C" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M35 27v5a3 3 0 0 1-3 3h-5Z" fill="#E4DFD3"/></svg></button>
+  <button class="tool" data-tool="note" aria-pressed="false" aria-label="便签" title="便签"><svg viewBox="0 0 40 40"><path d="M6 7h28v20l-7 7H6Z" fill="#F2E199"/><path d="M34 27h-7v7Z" fill="#D8C470"/><path d="M11 15h17M11 20h13" stroke="#B9A659" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+  <button class="tool" data-tool="stamp" aria-pressed="false" aria-label="印章" title="印章"><svg viewBox="0 0 40 40"><rect x="15" y="3" width="10" height="14" rx="5" fill="#9B6B43"/><rect x="10" y="17" width="20" height="6" rx="1.5" fill="#B88456"/><rect x="8" y="23" width="24" height="7" rx="1" fill="#2F3330"/><rect x="8" y="30" width="24" height="3" fill="#C8412B"/></svg></button>
+  <button class="tool" data-tool="eraser" aria-pressed="false" aria-label="橡皮" title="橡皮"><svg viewBox="0 0 40 40"><g transform="rotate(-20 20 20)"><rect x="6" y="13" width="28" height="14" rx="2.5" fill="#D98A86"/><rect x="20" y="13" width="14" height="14" rx="2.5" fill="#6E8FB5"/><rect x="20" y="13" width="3" height="14" fill="#6E8FB5"/></g></svg></button>
+  <span class="tsep" aria-hidden="true"></span>
+  <button class="ttext" id="deskbtn" title="换一张画纸">画纸</button>
+  <button class="ttext" id="tidybtn">收拾</button>
+  <button class="ttext tdone" id="donebtn" hidden>贴好了</button>
+</div>
+
+<dialog class="viewer" id="viewer" aria-label="照片"><figure><img id="vimg" alt=""><figcaption id="vcap"></figcaption></figure><button class="vx" id="vx" aria-label="关闭">✕</button><button class="vnav vp" id="vprev" aria-label="上一张">‹</button><button class="vnav vn" id="vnext" aria-label="下一张">›</button></dialog>
+<dialog class="after" id="after" aria-labelledby="afh">
+  <button type="button" class="ax" id="ax" aria-label="关闭">✕</button>
+  <div class="apane" data-p="pick">
+    <h3 id="afh">贴好了，然后呢？</h3>
+    <div class="aopts">
+      <button type="button" data-a="send"><b>寄给我</b><span>写一条建议、一个想法，或者打个招呼，连同你贴的这些一起寄过去。</span></button>
+      <button type="button" data-a="save"><b>存成一张图</b><span>把你这一版画板存下来，自己留着。</span></button>
+      <button type="button" data-a="keep"><b>就留在这儿</b><span>下次用这台设备打开，它们还在原处。</span></button>
+    </div>
+  </div>
+  <form class="apane asend" data-p="send" hidden>
+    <h3>寄给我</h3>
+    <div class="akind" role="radiogroup" aria-label="这是一封什么信">
+      <label><input type="radio" name="ak" value="建议" checked><span>一条建议</span></label>
+      <label><input type="radio" name="ak" value="想法"><span>一个想法</span></label>
+      <label><input type="radio" name="ak" value="招呼"><span>打个招呼</span></label>
+    </div>
+    <label class="afield"><span>想说的话</span><textarea name="at" maxlength="600" rows="5" placeholder="写什么都行，也可以空着"></textarea></label>
+    <label class="afield"><span>署名（可不填）</span><input name="as" maxlength="30" placeholder="名字、昵称或联系方式"></label>
+    <p class="anote" id="anote"></p>
+    <div class="arow"><button type="button" class="aback" data-a="pick">返回</button><button type="submit" class="ago">寄出</button></div>
+  </form>
+  <div class="apane adone" data-p="done" hidden>
+    <h3 id="adoneh">寄出了</h3>
+    <p id="adonep"></p>
+    <div class="arow"><button type="button" class="ago" data-a="close">好</button></div>
+  </div>
+</dialog>

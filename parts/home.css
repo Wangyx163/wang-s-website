@@ -1,0 +1,205 @@
+
+/* ── 路由：一次只显示一页 ── */
+.page[hidden]{display:none}
+::view-transition-old(root),::view-transition-new(root){animation-duration:260ms;animation-timing-function:cubic-bezier(.23,1,.32,1)}
+::view-transition-group(*){animation-duration:420ms;animation-timing-function:cubic-bezier(.23,1,.32,1)}
+
+/* ── 首页：一张书桌，正中是你 ── */
+.home{position:relative;width:1360px;max-width:100%;margin:0 auto;height:1200px}
+.home>*{position:absolute}
+.hid{left:50%;top:112px;width:500px;margin-left:-272px;z-index:2}
+.hplayer{right:1.6%;top:22px;width:358px;rotate:4deg}
+.hplayer .player{zoom:.56}
+.hplayer .note{display:none}
+.playcap{margin:12px 0 0;rotate:-4deg;text-align:center;font:700 20px/1 'Caveat','Long Cang',cursive;color:var(--ink2)}
+.hphotos{left:3%;top:22px;width:340px;rotate:-3deg}
+.hphotos .door{position:absolute;left:0;top:296px;rotate:-5deg;white-space:nowrap}
+.hphotos .pile{--pw:250px;height:300px}
+.hphotos .pcount{right:auto;left:calc(50% + 70px);bottom:-14px;font-size:20px}
+.pile .pp figcaption{transition:color 200ms ease}.pile .pp:not(.top) figcaption,.pile .pp:not(.top) figcaption small{color:transparent}
+.hcards{left:6.5%;top:468px;width:330px;rotate:2.5deg}
+.hcards .door{margin-left:150px;rotate:-3deg}
+.hcards .cstack{height:250px}
+.hbooks{right:6%;top:596px;width:370px;rotate:-3deg;display:block;text-decoration:none;color:inherit}
+.hbooks .books{zoom:.64;width:560px}
+.hbooks .bookdesk{padding:0}
+.hlog{left:6.5%;top:900px;width:330px;padding:26px 22px 26px;background:#FDFCF7;rotate:1.8deg;font:400 12px/1.5 'IBM Plex Mono',monospace;color:#5F625C;box-shadow:var(--sh);clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),96% 100%,92% calc(100% - 6px),88% 100%,84% calc(100% - 6px),80% 100%,76% calc(100% - 6px),72% 100%,68% calc(100% - 6px),64% 100%,60% calc(100% - 6px),56% 100%,52% calc(100% - 6px),48% 100%,44% calc(100% - 6px),40% 100%,36% calc(100% - 6px),32% 100%,28% calc(100% - 6px),24% 100%,20% calc(100% - 6px),16% 100%,12% calc(100% - 6px),8% 100%,4% calc(100% - 6px),0 100%);filter:drop-shadow(0 6px 8px rgba(48,34,18,.18))}
+
+/* 扉页：「这张桌子属于」 */
+.idpage{position:relative;padding:40px 46px 26px;background:#FDFCF7;color:#2E302C;rotate:-2deg;box-shadow:var(--sh)}
+.idpage::before{content:'';position:absolute;inset:14px;border:1.5px solid #5E6A55;outline:1px solid #5E6A55;outline-offset:-5px;pointer-events:none;opacity:.8}
+.idpage::after{content:'';position:absolute;inset:0;background:var(--noise);background-size:160px;mix-blend-mode:multiply;opacity:.3;pointer-events:none}
+.idhead{position:relative;margin:4px 0 18px;font:600 15px/1 'Noto Serif SC',serif;letter-spacing:.42em;color:#5E6A55}
+.idform{position:relative;margin:0;display:grid;gap:4px}
+.idrow{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:end;gap:10px}
+.idrow dt{padding-bottom:6px;font:500 13px/1 'Noto Sans SC',sans-serif;color:#6B6E67;letter-spacing:.1em}
+.idrow dd{margin:0;min-height:40px;padding:0 4px 3px;border-bottom:1.5px dotted rgba(46,48,44,.4);font:400 23px/36px 'Caveat','Long Cang',cursive;color:#2C4A7B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.idrow.big dd{min-height:58px;font:400 31px/54px 'Homemade Apple',cursive;color:#23324F;overflow:visible}
+.idfoot{position:relative;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.idfoot .door{margin-top:0;color:#5F625C}
+@media (hover:hover) and (pointer:fine){.idfoot .door:hover{color:#2E302C}}
+.idseal{display:grid;place-content:center;width:84px;height:84px;margin:-18px 4px -10px 0;border:2.5px solid var(--marker);border-radius:50%;outline:1px solid var(--marker);outline-offset:-8px;color:var(--marker);text-align:center;rotate:-13deg;opacity:.86;-webkit-mask-image:var(--grit);mask-image:var(--grit);-webkit-mask-size:130px;mask-size:130px}
+.idseal b{font:400 21px/1 'Long Cang',serif}.idseal small{margin-top:3px;font:400 13px/1 'Long Cang',serif}
+.idphoto{position:absolute;right:-40px;top:-22px;width:150px;margin:0;padding:7px 7px 24px;background:#fff;rotate:5deg;box-shadow:0 1px 2px rgba(0,0,0,.16),0 10px 16px -10px rgba(0,0,0,.35);z-index:2}
+.idphoto img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 30%}
+.idtape{position:absolute;left:50%;top:-10px;width:74px;height:22px;margin-left:-37px;background:rgba(214,222,196,.8);rotate:-4deg;clip-path:polygon(0 0,100% 6%,98% 30%,100% 55%,97% 80%,100% 100%,0 94%,3% 70%,0 45%,2% 20%);z-index:1}
+
+/* ── DIY 层 ── */
+.ink,.diy{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.ink{z-index:29}.diy{z-index:30}
+.ink path{fill:none;stroke:var(--pen,#3B403C);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.diy>*{position:absolute;pointer-events:auto;cursor:grab;touch-action:none}
+.diy>.lifted{cursor:grabbing;z-index:5;scale:1.04}
+.diy>.gone{animation:poof 160ms ease-out forwards}
+@keyframes poof{to{opacity:0;scale:.8}}
+.dtape{height:26px;transform-origin:0 50%;mix-blend-mode:multiply;clip-path:polygon(0 4%,3px 22%,0 42%,3px 60%,0 80%,2px 100%,calc(100% - 2px) 96%,100% 78%,calc(100% - 3px) 58%,100% 38%,calc(100% - 2px) 18%,100% 0)}
+.tp0{background:repeating-linear-gradient(90deg,rgba(255,255,255,.14) 0 2px,transparent 2px 7px),rgba(222,203,160,.8)}
+.tp1{background-color:rgba(234,168,160,.75);background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);background-size:8px 8px}
+.tp2{background:repeating-linear-gradient(45deg,rgba(150,168,128,.8) 0 6px,rgba(214,222,196,.8) 6px 12px)}
+.tp3{background-color:rgba(158,190,214,.78);background-image:radial-gradient(rgba(255,255,255,.8) 1.6px,transparent 2px);background-size:10px 10px}
+.dst svg{display:block;width:78px;height:78px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.22)) drop-shadow(0 4px 5px rgba(0,0,0,.14))}
+.dstamp{display:grid;place-content:center;width:96px;height:96px;border:3px solid var(--marker);border-radius:50%;outline:1.2px solid var(--marker);outline-offset:-9px;color:var(--marker);text-align:center;opacity:.85;-webkit-mask-image:var(--grit);mask-image:var(--grit);-webkit-mask-size:130px;mask-size:130px}
+.dstamp b{font:600 14px/1 'Oswald',sans-serif;letter-spacing:.06em}.dstamp small{margin-top:5px;font:400 18px/1 'Long Cang',serif}
+.dstamp.fresh{animation:stampIn 240ms var(--eo)}
+@keyframes stampIn{from{scale:1.3;opacity:0}to{scale:1;opacity:.85}}
+.dnote{width:176px;min-height:156px;padding:20px 14px 10px;background:var(--nc);box-shadow:0 1px 1px rgba(48,34,18,.14),0 12px 16px -12px rgba(48,34,18,.32);cursor:default!important}
+.dgrip{position:absolute;left:0;right:0;top:0;height:18px;cursor:grab}
+.dnote textarea{display:block;width:100%;height:122px;padding:0;border:0;background:none;resize:none;outline:none;font:400 20px/1.4 'Caveat','Long Cang',cursive;color:#3B3725}
+.dnote textarea::placeholder{color:rgba(59,55,37,.45)}
+.dghost{position:fixed;z-index:80;width:78px;height:78px;margin:-39px 0 0 -39px;pointer-events:none;opacity:0}
+.dghost.on{opacity:1}
+.dghost svg{width:100%;height:100%;filter:drop-shadow(0 10px 10px rgba(0,0,0,.25))}
+.home[data-tool=pencil],.home[data-tool=tape],.home[data-tool=stamp],.home[data-tool=note],.home[data-tool=sticker],.home[data-tool=eraser],.home[data-tool=move]{touch-action:none;user-select:none;-webkit-user-select:none}
+.home[data-tool=pencil]{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cpath d='M3 23l2-6L18 4l4 4L9 21Z' fill='%2355635A' stroke='%23fff' stroke-width='1.2'/%3E%3Cpath d='M3 23l2-6 4 4Z' fill='%23E3C79C'/%3E%3C/svg%3E") 3 23,crosshair}
+.home[data-tool=tape],.home[data-tool=stamp],.home[data-tool=note],.home[data-tool=sticker]{cursor:crosshair}
+.home[data-tool=eraser]{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='%23fff' fill-opacity='.6' stroke='%23343A35' stroke-width='1.4'/%3E%3C/svg%3E") 12 12,cell}
+.home[data-tool=move] .hobj{cursor:move}
+.home[data-tool] .hobj *{cursor:inherit}
+.home .hobj.moving{z-index:20}
+
+/* 工具托盘 */
+.tray{position:fixed;left:50%;bottom:16px;translate:-50% 0;z-index:55;display:flex;align-items:center;gap:2px;max-width:calc(100vw - 16px);overflow-x:auto;padding:6px 10px;border-radius:20px;background:light-dark(#ECE8DF,#2A2B28);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.12),inset 0 -1px 0 rgba(255,255,255,.5),0 1px 1px rgba(28,22,14,.2),0 16px 30px -12px rgba(28,22,14,.38);scrollbar-width:none}
+.tray[hidden],.trayhint[hidden]{display:none}
+@media (max-width:600px){.trayhint{font-size:17px;bottom:84px}.trayhint.idle{display:none}}
+.tool{position:relative;flex:0 0 auto;display:grid;place-items:center;width:52px;height:56px;padding:0;border:0;border-radius:12px;background:none;cursor:pointer}
+.tool svg{width:40px;height:40px;filter:drop-shadow(0 2px 2px rgba(28,22,14,.25));transition:translate 200ms var(--eo),filter 200ms var(--eo)}
+.tool:active svg{scale:.94}
+@media (hover:hover) and (pointer:fine){.tool:hover svg{translate:0 -3px}}
+.tool[aria-pressed=true] svg{translate:0 -8px;filter:drop-shadow(0 9px 6px rgba(28,22,14,.22))}
+.tool[aria-pressed=true]::after{content:'';position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--moss)}
+.tsep{flex:0 0 1px;align-self:stretch;margin:8px 6px;background:light-dark(rgba(52,58,53,.2),rgba(236,232,223,.22))}
+.ttext{flex:0 0 auto;height:48px;padding:0 10px;border:0;border-radius:10px;background:none;font:700 20px/1 'Caveat','Long Cang',cursive;color:light-dark(#5F625C,#C9C5BB);cursor:pointer;white-space:nowrap}
+@media (hover:hover) and (pointer:fine){.ttext:hover{color:light-dark(#2E302C,#F1EEE6)}}
+.ttext:active{scale:.96}
+.trayhint{position:fixed;left:50%;bottom:90px;translate:-50% 0;z-index:55;max-width:calc(100vw - 24px);padding:2px 8px;font:700 20px/1.2 'Caveat','Long Cang',cursive;color:var(--ink2);text-align:center;pointer-events:none;background:color-mix(in srgb,var(--desk) 80%,transparent);border-radius:6px}
+.sheet{position:fixed;left:50%;bottom:122px;translate:-50% 0;z-index:56;display:grid;grid-template-columns:repeat(4,68px);gap:8px;padding:14px;border-radius:6px;background:#FBFAF6;box-shadow:0 1px 1px rgba(28,22,14,.2),0 18px 30px -14px rgba(28,22,14,.4)}
+.sheet[hidden]{display:none}
+.sheet button{width:68px;height:68px;padding:5px;border:0;border-radius:10px;background:none;cursor:grab;touch-action:none}
+.sheet button svg{width:100%;height:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+.sheet button[aria-pressed=true]{background:rgba(94,106,85,.16)}
+.toast{position:fixed;left:50%;bottom:92px;translate:-50% 0;z-index:57;display:flex;align-items:center;gap:14px;padding:10px 12px 10px 16px;border-radius:10px;background:#2B2E2B;color:#EEEAE0;font-size:14px;box-shadow:0 12px 24px -10px rgba(0,0,0,.4)}
+.toast[hidden]{display:none}
+.toast button{height:32px;padding:0 12px;border:0;border-radius:7px;background:#F2E199;color:#2B2E2B;font-weight:500;cursor:pointer}
+
+/* 桌布 */
+body[data-desk=kraft]{--desk:#D9BF98;--ink:#2F2A22;--ink2:#5A4E3E;--gmin:rgba(60,40,20,.06);background-image:var(--noise),linear-gradient(var(--gmin) 1px,transparent 1px),linear-gradient(90deg,var(--gmin) 1px,transparent 1px);background-size:160px,28px 28px,28px 28px}
+body[data-desk=cork]{--desk:#C79F74;--ink:#2B231A;--ink2:#4F4131;background-image:radial-gradient(rgba(90,55,25,.35) 1px,transparent 1.6px),radial-gradient(rgba(255,230,190,.25) 1px,transparent 1.4px),var(--noise);background-size:7px 9px,11px 7px,160px;background-position:0 0,3px 4px,0 0}
+body[data-desk=mat]{--desk:#3D5A4B;--ink:#EEF0E8;--ink2:#C3CFC5;--line:rgba(238,240,232,.3);--pen:#F1EFE6;background-image:linear-gradient(rgba(238,240,232,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(238,240,232,.22) 1px,transparent 1px),linear-gradient(rgba(238,240,232,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(238,240,232,.08) 1px,transparent 1px);background-size:140px 140px,140px 140px,14px 14px,14px 14px}
+
+.door{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 2px;font:700 22px/1 'Caveat','Long Cang',cursive;color:var(--ink2);text-decoration:none;transition:color 160ms ease}
+.door svg{width:34px;height:14px;overflow:visible;transition:translate 200ms var(--eo)}
+.door svg path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@media (hover:hover) and (pointer:fine){.door:hover{color:var(--ink)}.door:hover svg{translate:4px 0}}
+.hbooks .door,.hbadge .door{margin-top:14px}
+.hlog h3{margin:0 0 6px;font:500 12px/1 'IBM Plex Mono',monospace;color:#2E302C}
+.hlog ol{list-style:none;margin:0;padding:8px 0 0;border-top:1px dashed rgba(46,48,44,.3)}
+.hlog a{display:grid;grid-template-columns:48px 36px minmax(0,1fr);gap:8px;padding:4px 0;color:#5F625C;text-decoration:none}
+.hlog code{font:inherit;color:#A3A59E}
+.hlog time{color:#2E302C}
+.hlog span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover) and (pointer:fine){.hlog a:hover span{color:#2E302C;text-decoration:underline;text-underline-offset:3px}}
+
+/* 首页的小工牌 */
+.lan{display:block;width:18px;height:150px;margin:0 auto;background:linear-gradient(90deg,#1E2124,#2E3236 50%,#1E2124)}
+.mclip{display:block;width:30px;height:24px;margin:-2px auto 0;border-radius:5px 5px 3px 3px;background:linear-gradient(#D6D8D6,#9DA19F);box-shadow:inset 0 1px 0 #FFF,0 2px 3px rgba(0,0,0,.3)}
+.mcard{position:relative;display:flex;flex-direction:column;align-items:center;width:150px;height:208px;padding:26px 12px 14px;border-radius:12px;background-color:#2B2F2C;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.2px);background-size:9px 9px;color:#EEEAE0;box-shadow:var(--sh);view-transition-name:badge}
+.mcard i{position:absolute;left:50%;top:9px;width:36px;height:6px;margin-left:-18px;border-radius:3px;background:#161917}
+.mcard img{width:78px;height:78px;border-radius:50%;object-fit:cover;border:3px solid #3A403B;margin-top:4px}
+.mcard b{margin-top:12px;font:700 16px/1.2 'Noto Sans SC'}
+.mcard small{margin-top:4px;font-size:11px;color:#B9BDB6}
+
+/* ── 卡片组件：索引卡 ── */
+.icard{position:relative;width:var(--cw,300px);min-height:calc(var(--cw,300px) * .66);padding:0 18px 12px;border-radius:2px;background:#FCFBF5;color:#2E302C;box-shadow:var(--sh);text-align:left}
+.icard::before{content:'';position:absolute;left:0;right:0;top:40px;bottom:0;background:repeating-linear-gradient(transparent 0 21px,rgba(140,175,196,.45) 21px 22px);pointer-events:none}
+.icard::after{content:'';position:absolute;left:0;right:0;top:39px;height:1.5px;background:#D77A6C;pointer-events:none}
+.ic-h{position:relative;height:40px;display:flex;align-items:center;justify-content:space-between;font:500 11px/1 'IBM Plex Mono',monospace;color:#A64B3C}
+.ic-h span:last-child{color:#8C8E87}
+.ic-q,.ic-n,.ic-s{position:relative;margin:0}
+.ic-q{padding-top:1px;font:500 15.5px/22px 'Noto Serif SC',serif;color:#23251F;text-wrap:pretty}
+.icard.idea .ic-q{font:400 24px/22px 'Long Cang','Caveat',serif;padding-top:4px;letter-spacing:.02em}
+.ic-n{margin-top:0;font:400 20px/22px 'Long Cang','Caveat',serif;color:#2C4A7B}
+.ic-n::before{content:'';display:inline-block;width:16px;height:9px;margin-right:6px;vertical-align:1px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Cpath d='M1 5c4-1 8-1 13-1M10 1l4 3-4 4' fill='none' stroke='%232C4A7B' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.ic-s{font:400 11px/22px 'IBM Plex Mono',monospace;color:#8C8E87;text-align:right}
+.icard.has-img .ic-q{padding-right:78px}
+.ic-img{position:absolute;right:-16px;top:-20px;width:104px;padding:5px 5px 16px;background:#fff;rotate:5deg;box-shadow:0 1px 2px rgba(0,0,0,.18),0 6px 10px -6px rgba(0,0,0,.3);z-index:2}
+.ic-img img{width:100%;aspect-ratio:1;object-fit:cover}
+.ic-clip{position:absolute;left:18px;top:-14px;width:16px;height:44px;z-index:3;rotate:-4deg;overflow:visible}
+.cstack{position:relative;outline:none;view-transition-name:cards}
+.cstack:focus-visible .sk.top{outline:2px solid var(--moss);outline-offset:4px}
+.sk{position:absolute;left:50%;top:50%;margin:0;will-change:transform;user-select:none;-webkit-user-select:none;touch-action:pan-y;cursor:pointer}
+.sk.top{cursor:grab}.sk.lifted{cursor:grabbing;box-shadow:var(--sh-up)}
+.cbox{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:44px 34px;padding:28px 0 20px;view-transition-name:cards}
+.cbox .icard{rotate:var(--r,0deg)}
+
+/* ── 子页面 ── */
+.ptitle{max-width:1240px;margin:0 auto;padding:72px max(4vw,16px) 0}
+.ptitle h1{margin:0;font:700 34px/1.25 'Noto Sans SC',sans-serif}
+.ptitle p{margin:10px 0 0;max-width:36em;color:var(--ink2);font-size:15.5px}
+.books{view-transition-name:books}
+.lt{columns:2 320px;column-gap:56px;max-width:960px;margin:0 auto;padding:20px 0 40px}
+.lt .pp{position:relative;left:auto;top:auto;width:100%;margin:0 0 48px;break-inside:avoid;transform:rotate(var(--r,0deg));--pw:320px;cursor:zoom-in;transition:transform 220ms var(--eo),box-shadow 220ms var(--eo)}
+@media (hover:hover) and (pointer:fine){.lt .pp:hover{transform:rotate(0deg) translateY(-3px);box-shadow:var(--sh-up)}}
+.viewer{border:0;padding:16px 16px 0;background:var(--paper);color:#2C2F2B;max-width:min(94vw,1240px);max-height:94vh;box-shadow:0 40px 90px -30px rgba(0,0,0,.6)}
+.viewer::backdrop{background:rgba(24,26,22,.62)}
+.viewer img{max-width:100%;max-height:80vh;width:auto;margin:0 auto}
+.viewer figure{margin:0}
+.viewer figcaption{display:flex;justify-content:space-between;gap:16px;align-items:center;min-height:56px;font:500 24px/1 'Caveat','Long Cang',cursive}
+.viewer figcaption small{font:400 11px 'IBM Plex Mono';color:#80837D}
+.viewer .vx{position:absolute;right:10px;top:10px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(253,252,249,.9);cursor:pointer;font-size:16px}
+.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px 56px;align-items:start}
+.about .rig{left:50%;margin-left:-110px;top:-40px}
+.card3d{view-transition-name:badge}
+.bio{padding-top:40px;max-width:32em}
+.bio h1{margin:0 0 16px;font:700 34px/1.25 'Noto Sans SC'}
+.bio p{margin:0 0 14px;color:var(--ink2);font-size:16px;line-height:1.8}
+.bio dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:26px 0 0;padding-top:18px;border-top:1px solid var(--line);font-size:14.5px}
+.bio dt{color:var(--ink2)}.bio dd{margin:0}
+.bio .hint{margin-top:22px;font:700 20px/1.3 'Caveat','Long Cang',cursive;color:var(--ink2)}
+
+@media (max-width:899px){
+  .home{width:auto;height:auto;display:flex;flex-direction:column;align-items:center;gap:56px;padding:28px 16px 72px}
+  .home>*{position:relative;left:auto!important;right:auto!important;top:auto!important;translate:none!important}
+  .hplayer .player{zoom:1}
+  .hphotos,.hcards{width:min(340px,100%);text-align:center}
+  .hcards .cstack{margin:0 auto}
+  .hphotos .pile{--pw:min(250px,70vw)}
+  .hbooks{width:min(370px,100%);text-align:center}.hlog{order:6;width:min(440px,100%);margin-left:0}
+  .hid{width:min(500px,100%);margin-left:0;order:-1}.idpage{padding:34px 26px 22px}.idphoto{width:110px;right:-10px;top:-30px}.idrow dd{font-size:20px}.idrow.big dd{font-size:24px}
+  .hplayer{width:auto}.hplayer .player{zoom:1}
+  .home{padding-bottom:140px}
+  .home>.ink,.home>.diy{position:absolute!important;left:0!important;top:0!important}
+  .home{overflow-x:clip}
+  .tool{width:46px}.tool svg{width:34px;height:34px}.sheet{grid-template-columns:repeat(4,60px)}.sheet button{width:60px;height:60px}
+  .about{grid-template-columns:minmax(0,1fr)}.bio{padding-top:0}
+}
+
+/* 图钉 */
+.pin{position:absolute;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F3A08F,#C8412B 58%,#8E2A1B);box-shadow:0 2px 2px rgba(0,0,0,.3),3px 6px 6px -2px rgba(0,0,0,.25);z-index:6;pointer-events:none}
+.pin::after{content:'';position:absolute;left:4px;top:3px;width:5px;height:4px;border-radius:50%;background:rgba(255,255,255,.7)}
+.pin.g{background:radial-gradient(circle at 35% 30%,#B9C9A7,#5E6A55 58%,#3B4536)}
+.pin.b{background:radial-gradient(circle at 35% 30%,#A9C2DE,#2C4A7B 58%,#1B2E4E)}
+.hlog .pin{left:50%;top:9px;margin-left:-8px}
+.hcards .pin{left:40px;top:-6px}
+.hbooks .pin{display:none}
+@media (max-width:899px){.home>*{rotate:0deg!important}.hphotos .door{position:static;rotate:none}.hcards .door{margin-left:0}.hlog{width:min(330px,100%)}}

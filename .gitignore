@@ -1,0 +1,5 @@
+__pycache__/
+out*/
+.DS_Store
+# 磁带里的歌有版权，不放进仓库；本地放一份 audio/warm-place.mp3 即可
+audio/*.mp3

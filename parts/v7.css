@@ -1,0 +1,245 @@
+
+/* ══════════ 构图 v7：名字不加特效；照片＝拍立得；访客＝入场券；在读和更新合成一张小票 ══════════ */
+.home{height:1120px}
+.home:has(.rx1:not([hidden])),.home:has(.rx3:not([hidden])){height:1120px}
+.hlog,.rxzone,#rx4marks{display:none!important}
+.review{display:none!important}
+
+/* 名字区：只有字，没有纸、胶带、手写体以外的装饰 */
+.askline{gap:12px;margin-top:34px;padding-bottom:7px}
+.askline label{font:500 14px/1 'Noto Sans SC',sans-serif;letter-spacing:.04em;color:var(--ink2)}
+.askline .askin{width:300px;height:30px;font:400 17px/30px 'Noto Serif SC',serif;color:var(--ink)}
+.askline .askin::placeholder{color:color-mix(in srgb,var(--ink2) 50%,transparent)}
+.askul{height:2px;bottom:0}
+.askul path{display:none}
+.askline::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:color-mix(in srgb,var(--ink) 45%,transparent);transition:background 160ms ease,height 160ms ease}
+.askline:focus-within::after{background:var(--ink);height:1.5px}
+.hname .asksug{margin-top:10px;display:flex;justify-content:center;gap:18px}
+.hname .asksug button{font:400 13.5px/1.6 'Noto Sans SC',sans-serif;color:color-mix(in srgb,var(--ink2) 85%,transparent);text-decoration:none;border-bottom:1px dotted color-mix(in srgb,var(--ink2) 50%,transparent)}
+.hname .asksug button:hover{color:var(--ink)}
+/* 回答：纯文字，标明 AI 代答和出处 */
+.hname .aislot{width:440px;margin-left:-220px;top:calc(100% + 22px)}
+.ans{opacity:0;translate:0 4px;transition:opacity 240ms var(--eo),translate 240ms var(--eo)}
+.ans.in{opacity:1;translate:0 0}
+.ans .aq{margin:0;font:500 13px/1.6 'Noto Sans SC',sans-serif;color:var(--ink2)}
+.ans .aa{margin:6px 0 0;font:400 16px/1.8 'Noto Serif SC',serif;color:var(--ink);min-height:1.8em}
+.ans .aa.thinking{color:var(--ink2)}
+.ans .af{margin:8px 0 0;font:400 12px/1.5 'Noto Sans SC',sans-serif;color:color-mix(in srgb,var(--ink2) 80%,transparent)}
+.ans .af button{all:unset;cursor:pointer;color:var(--marker);border-bottom:1px solid color-mix(in srgb,var(--marker) 40%,transparent)}
+.ans .af button:focus-visible{outline:2px solid var(--marker);outline-offset:2px}
+
+/* 工牌挪到左上 */
+.hbadge{left:7%;top:-30px;rotate:4deg}
+
+/* 照片：一摞拍立得；最上面那张是黑框（置顶） */
+.hphotos{left:1.6%;top:288px;width:330px;rotate:-5deg;z-index:3}
+.hphotos .pile{--pw:236px;height:318px}
+.hphotos .door{left:96px;top:328px}
+.hphotos .pp,.hphotos .pp.p{width:var(--pw);padding:calc(var(--pw) * .062) calc(var(--pw) * .062) calc(var(--pw) * .235);background:linear-gradient(165deg,#FCFBF7,#EFECE4);border-radius:1px}
+.hphotos .pp .ppi,.hphotos .pp.p .ppi{aspect-ratio:1;background:#24302F;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+.hphotos .pp .ppi img{transition:filter 4.6s cubic-bezier(.25,.6,.3,1),opacity 4.6s cubic-bezier(.25,.6,.3,1)}
+.hphotos .pp.raw .ppi img{filter:brightness(.28) contrast(.45) saturate(.1) sepia(.7) hue-rotate(120deg);opacity:.18;transition:none}
+.hphotos .pp figcaption{position:absolute;left:0;right:0;bottom:calc(var(--pw) * .058);height:auto;justify-content:center;padding:0;font:400 calc(var(--pw) * .088)/1 'Long Cang','Caveat',cursive;color:#2F3D7A}
+.hphotos .pp figcaption small{display:none}
+.hphotos .pp.blk{background:linear-gradient(165deg,#2C2C29,#181816)}
+.hphotos .pp.blk::after{opacity:.12}
+.hphotos .pile .pp.blk.top figcaption{color:#F1EEE6}
+/* 照片堆底下露出一卷胶卷 */
+.hfilm{position:absolute;left:1.2%;top:236px;width:150px;rotate:16deg;z-index:2;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(40,34,20,.3)) drop-shadow(3px 10px 10px rgba(40,34,20,.22))}
+.hfilm img{width:100%}
+
+/* 右下：一张小票，写「在读」和「最近改了什么」。字小、颜色浅，放在角落 */
+.hrcpt{right:1.6%;top:930px;width:196px;rotate:4deg;z-index:2;filter:drop-shadow(0 1px .6px rgba(40,34,20,.2)) drop-shadow(0 8px 10px rgba(40,34,20,.12))}
+.hrcpt .rp{position:relative;background:#FDFCF9;padding:22px 16px 28px;font:400 11px/1.7 'IBM Plex Mono',monospace;color:#6A6C64;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/10px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/10px 100%}
+.hrcpt .rp::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.03),transparent 12%,transparent 88%,rgba(0,0,0,.035));pointer-events:none}
+.hrcpt h4{margin:0;text-align:center;font:500 13px/1.4 'Noto Sans SC',sans-serif;letter-spacing:.3em;color:#4C4E47}
+.hrcpt .c{margin:0;text-align:center;font-size:10px;color:#9A9C93}
+.hrcpt hr{border:0;border-top:1px dashed #BDBDB3;margin:8px 0}
+.hrcpt .ln{display:grid;grid-template-columns:38px 1fr;gap:4px;align-items:baseline}
+.hrcpt .ln>span:first-child{color:#A2A49B}
+.hrcpt a{color:inherit;text-decoration:none}
+.hrcpt a:hover{color:var(--ink);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--ink) 30%,transparent)}
+.hrcpt .ln.new{background:linear-gradient(transparent 55%,rgba(242,214,120,.6) 55%);color:#3E403A}
+.hrcpt .ln.lit{background:linear-gradient(transparent 55%,rgba(200,65,43,.16) 55%);color:#3E403A;transition:background 300ms}
+.rtape{position:absolute;left:50%;top:-10px;width:78px;height:22px;margin-left:-39px;rotate:-4deg;z-index:2;background:repeating-linear-gradient(90deg,rgba(94,106,85,.55) 0 7px,rgba(94,106,85,.34) 7px 14px);mix-blend-mode:multiply;clip-path:polygon(0 0,100% 0,98.6% 22%,100% 46%,98.4% 70%,100% 100%,0 100%,1.4% 76%,0 50%,1.6% 26%)}
+
+
+/* ── 联动 1：问 AI 时，别的东西退后，被引用的那件浮起来、被红笔圈一下 ── */
+.home>.hobj,.home>.hfilm{transition:opacity 420ms var(--eo),filter 420ms var(--eo),translate 420ms var(--eo)}
+.home.focus>.hobj:not(.hname):not(.cited),.home.focus>.hfilm{opacity:.26;filter:saturate(.35)}
+.home.focus>.hrcpt:not(.cited){filter:saturate(.35) drop-shadow(0 1px .6px rgba(40,34,20,.2))}
+.home>.cited{z-index:30;translate:0 -6px}
+.citering{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:31}
+.citering path{fill:none;stroke:var(--marker);stroke-width:2.6;stroke-linecap:round;opacity:.85;stroke-dasharray:var(--len,2000);stroke-dashoffset:var(--len,2000);transition:stroke-dashoffset 700ms cubic-bezier(.3,.7,.2,1),opacity 300ms}
+.citering.on path{stroke-dashoffset:0}
+.citering.off path{opacity:0}
+.citecard{position:absolute;left:calc(50% + 236px);top:600px;z-index:32;rotate:3deg;opacity:0;translate:24px 0;transition:opacity 300ms var(--eo),translate 420ms var(--eo)}
+.citecard.in{opacity:1;translate:0 0}
+.citecard .icard{--cw:270px}
+.citecard .cc-h{position:absolute;left:0;top:-26px;font:400 12px/1 'Noto Sans SC',sans-serif;color:var(--ink2);white-space:nowrap}
+.citecard .cc-x{all:unset;position:absolute;right:-8px;top:-28px;cursor:pointer;font:400 12px/1 'Noto Sans SC',sans-serif;color:var(--ink2);padding:4px}
+
+/* ── 联动 2：放磁带时，画板的光变暖一点，像开了台灯 ── */
+.home::after{content:'';position:absolute;inset:-60px;pointer-events:none;z-index:40;background:radial-gradient(55% 48% at 82% 22%,rgba(255,190,110,.2),rgba(255,170,90,.07) 55%,transparent 78%);mix-blend-mode:multiply;opacity:0;transition:opacity 1.6s ease}
+body.playing .home::after{opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  .home>.hobj,.home>.hfilm,.citecard,.ans{transition:opacity 200ms linear}
+  .home>.cited{translate:none}
+  .hphotos .pp .ppi img{transition:none!important}
+}
+@media (max-width:899px){
+  .hfilm{display:none}
+  .hname{order:-2}.hphotos{order:1}.hplayer{order:2}.hdeck{order:3}.hticket{order:4}.hrcpt{order:5}.hbadge{order:9}
+  .hrcpt{width:min(240px,80vw)}
+  .hname .aislot{width:min(440px,100%);margin-left:0}
+  .citecard{position:fixed;left:50%;top:auto;bottom:16px;translate:-50% 20px;rotate:0deg}
+  .citecard.in{translate:-50% 0}
+  .home::after{display:none}
+}
+
+/* ══════════ v7 第二轮：卡片回来、书竖起来、文具角、入场券专属动效、悬停 ══════════ */
+/* 卡片：名字左下，离提问入口近 */
+.hcards{left:3.6%;top:690px;width:300px;rotate:-2.5deg;z-index:3}
+.hcards .cstack{height:236px}
+.hcards .pin{left:46px;top:-4px}
+.hcards .door{margin-left:120px;margin-top:6px}
+
+/* 书：竖着放的一小段书架 + 一张靠在书立旁的说明卡 */
+.hbooks{right:2.6%;top:612px;width:360px;rotate:0deg;z-index:3}
+.shelf{position:relative;height:250px}
+.spines{position:absolute;left:8px;bottom:22px;display:flex;align-items:flex-end;gap:2px}
+.sp{all:unset;position:relative;box-sizing:border-box;width:var(--w);height:var(--h);background:var(--c);color:var(--fc);cursor:pointer;border-radius:2px 2px 1px 1px;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 0 10px;
+  box-shadow:inset 3px 0 4px -2px rgba(255,255,255,.28),inset -4px 0 5px -2px rgba(0,0,0,.35),1px 0 0 rgba(0,0,0,.18);
+  transition:translate 260ms cubic-bezier(.2,.8,.2,1),box-shadow 260ms cubic-bezier(.2,.8,.2,1)}
+.sp::after{content:'';position:absolute;inset:0;background:var(--noise);background-size:120px;opacity:.16;mix-blend-mode:multiply;border-radius:inherit;pointer-events:none}
+.sp .st{writing-mode:vertical-rl;font:600 var(--sf,14px)/1 'Noto Serif SC',serif;letter-spacing:.1em;white-space:nowrap;max-height:calc(var(--h) - 52px);overflow:hidden}
+.sp .sa{writing-mode:vertical-rl;font:400 9.5px/1 'Noto Sans SC',sans-serif;letter-spacing:.08em;opacity:.8;white-space:nowrap}
+.sp.band::before{content:'';position:absolute;left:0;right:0;top:8px;height:6px;background:#C8412B}
+.sp.rule::before{content:'';position:absolute;left:5px;right:5px;bottom:34px;height:1px;background:currentColor;opacity:.6;box-shadow:0 4px 0 currentColor}
+.sp.lines::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:currentColor;opacity:.55;box-shadow:0 5px 0 currentColor,0 calc(var(--h) - 22px) 0 currentColor}
+.sp.star::before{content:'';position:absolute;left:4px;right:4px;top:6px;height:1px;background:#E6D6A6;opacity:.7;box-shadow:0 3px 0 #E6D6A6}
+.sp.cloth::after{opacity:.38;background-size:60px}
+.sp:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.sp.on{translate:0 -16px;box-shadow:inset 3px 0 4px -2px rgba(255,255,255,.28),inset -4px 0 5px -2px rgba(0,0,0,.35),0 10px 12px -6px rgba(0,0,0,.35)}
+.bookend{width:12px;height:118px;margin-left:3px;background:linear-gradient(90deg,#8E8B83,#C9C6BE 40%,#7E7B74);border-radius:1px;box-shadow:2px 2px 3px rgba(0,0,0,.2);position:relative}
+.bookend::after{content:'';position:absolute;left:0;bottom:-4px;width:46px;height:4px;background:#8E8B83}
+.ledge{position:absolute;left:0;right:0;bottom:8px;height:14px;background:linear-gradient(#D9C3A0,#BFA27A);border-radius:1px;box-shadow:0 6px 8px -3px rgba(40,30,15,.35)}
+.ledge::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(120,80,40,.1) 0 2px,transparent 2px 9px);border-radius:inherit}
+.binfo{position:absolute;right:0;bottom:24px;width:168px;min-height:150px;padding:12px 13px 14px;background:#FCFBF6;rotate:-3deg;transform-origin:50% 100%;
+  box-shadow:0 1px 1px rgba(40,34,20,.16),0 8px 12px -6px rgba(40,34,20,.3);transition:rotate 260ms cubic-bezier(.2,.8,.2,1)}
+.binfo p{margin:0}
+.binfo .bi-hint{font:400 19px/1.35 'Long Cang','Caveat',cursive;color:var(--ink2);padding-top:30px;text-align:center}
+.binfo .bi-t{font:600 15px/1.35 'Noto Serif SC',serif;color:var(--ink)}
+.binfo .bi-en{margin-top:3px;font:italic 400 11.5px/1.35 'Noto Serif SC',serif;color:var(--ink2)}
+.binfo .bi-a{margin-top:5px;font:400 10.5px/1.4 'Noto Sans SC',sans-serif;color:color-mix(in srgb,var(--ink2) 80%,transparent)}
+.binfo .bi-i{margin-top:7px;font:400 11.5px/1.65 'Noto Sans SC',sans-serif;color:var(--ink)}
+.binfo.show{rotate:-1deg}
+.hbooks .door{position:absolute;left:12px;top:252px;margin:0}
+/* Shelf 页 */
+.shelfwrap{position:relative;width:240px;height:240px;margin:0 auto}
+.shelfwrap .spines{left:20px}
+.booklist{list-style:none;margin:28px auto 0;padding:0;max-width:640px;display:grid;gap:22px}
+.booklist li{padding-bottom:18px;border-bottom:1px solid var(--line,rgba(0,0,0,.1))}
+.booklist .bi-t{font:600 18px/1.4 'Noto Serif SC',serif;margin:0}
+.booklist .bi-en{font:italic 400 13px/1.4 'Noto Serif SC',serif;color:var(--ink2);margin:2px 0 0}
+.booklist .bi-a{font-size:12.5px;color:var(--ink2);margin:4px 0 0}
+.booklist .bi-i{font-size:14.5px;line-height:1.75;margin:8px 0 0}
+
+/* 文具角（DIY）：看得见的工具，拿哪个就是哪个 */
+.hdiy{left:22%;top:58px;width:250px;height:160px;z-index:3}
+.hdiy .dt{all:unset;position:absolute;cursor:pointer;transition:translate 220ms cubic-bezier(.2,.8,.2,1),rotate 220ms cubic-bezier(.2,.8,.2,1),filter 220ms;filter:drop-shadow(0 1px .6px rgba(40,34,20,.28)) drop-shadow(1px 6px 6px rgba(40,34,20,.18))}
+.hdiy .dt svg{display:block;width:100%;height:auto}
+.hdiy .roll{left:0;top:18px;width:96px;rotate:-6deg}
+.hdiy .sheet{left:104px;top:0;width:78px;rotate:7deg}
+.hdiy .pad{left:178px;top:58px;width:64px;rotate:-9deg}
+.hdiy .pen{left:40px;top:118px;width:168px;rotate:-8deg}
+.hdiy .dt:focus-visible{outline:2px solid var(--moss);outline-offset:3px;border-radius:4px}
+.hdiy .dlabel{position:absolute;left:198px;top:20px;font:400 20px/1 'Long Cang','Caveat',cursive;color:var(--ink2);rotate:-6deg;white-space:nowrap}
+
+/* 照片堆位置微调 */
+.hphotos{left:1.4%;top:280px}
+.hfilm{left:18.4%;top:548px;width:150px;rotate:-24deg;z-index:2}
+
+/* 编号滚轮 */
+.odo{display:inline-flex;overflow:hidden;height:1em;line-height:1;vertical-align:-.12em}
+.odo i{display:block;font-style:normal;transition:translate 700ms cubic-bezier(.3,1.25,.5,1)}
+.odo span{display:block;height:1em;overflow:hidden}
+/* 磁带下面的 Spotify 链接 */
+.playcap .spot{display:block;margin-top:6px;font:400 12px/1.4 'Noto Sans SC',sans-serif;color:color-mix(in srgb,var(--ink2) 85%,transparent);text-decoration:none;border-bottom:1px dotted currentColor;width:max-content;rotate:0deg}
+.playcap .spot:hover{color:var(--ink)}
+
+/* ══ 悬停：只做“拿起来”这一个动作。有鼠标的设备才有 ══ */
+@media (hover:hover) and (pointer:fine){
+  .hphotos .pp.top,.hcards .icard.top{transition:translate 200ms cubic-bezier(.2,.8,.2,1),box-shadow 200ms cubic-bezier(.2,.8,.2,1)}
+  .hphotos .pile:hover .pp.top,.hcards .cstack:hover .icard.top{translate:0 -4px;box-shadow:0 1px 1px rgba(40,34,20,.14),0 18px 26px -12px rgba(40,34,20,.45)}
+  .hplayer .player,.hdeck .deck{transition:translate 220ms cubic-bezier(.2,.8,.2,1)}
+  .hplayer:hover .player{translate:0 -3px}
+  .hdiy .dt:hover{translate:0 -4px;rotate:calc(var(--rr,0deg));filter:drop-shadow(0 1px .6px rgba(40,34,20,.28)) drop-shadow(2px 12px 10px rgba(40,34,20,.22))}
+  .hdiy .roll:hover{rotate:-12deg}.hdiy .sheet:hover{rotate:3deg}.hdiy .pad:hover{rotate:-4deg}.hdiy .pen:hover{rotate:-12deg}
+  .hrcpt a:hover{text-decoration:underline}
+}
+@media (prefers-reduced-motion:reduce){
+  .sp,.binfo,.hdiy .dt,.odo i{transition:none!important}
+}
+@media (max-width:899px){
+  .hdiy{order:6;position:relative;width:250px;height:160px}
+  .hcards{order:3;width:min(300px,100%)}
+  .hbooks{order:5;width:min(360px,100%)}
+  .hticket{order:4;left:auto!important}
+}
+
+@media (min-width:900px){.traytog:not([aria-expanded="true"]){display:none}}
+@media (max-width:899px){.home,.home:has(.rx1:not([hidden])),.home:has(.rx3:not([hidden])){height:auto}}
+
+/* ══════════ v7.1 打磨：统一光源、纸纹、高光、按压、装修中 ══════════ */
+/* 光从左上来：所有影子朝右下，越厚影子越长越虚 */
+:root{
+  --sh:0 1px 1px rgba(48,34,18,.16),2px 5px 8px -3px rgba(48,34,18,.17),7px 16px 26px -16px rgba(48,34,18,.30);
+  --sh-up:0 2px 3px rgba(48,34,18,.12),7px 22px 30px -12px rgba(48,34,18,.27),16px 46px 64px -30px rgba(48,34,18,.32);
+  --dsh-flat:drop-shadow(0 1px .6px rgba(40,34,20,.24)) drop-shadow(2px 6px 7px rgba(40,34,20,.13));
+  --dsh-card:drop-shadow(0 1px .6px rgba(40,34,20,.25)) drop-shadow(3px 9px 11px rgba(40,34,20,.16));
+  --dsh-thick:drop-shadow(0 1px 1px rgba(28,22,14,.3)) drop-shadow(4px 10px 12px rgba(28,22,14,.17)) drop-shadow(10px 26px 28px rgba(28,22,14,.13));
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .27 0 0 0 0 .2 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+/* 画板：一张有纹理的纸，左上偏亮，右下偏暗（光固定在屏幕上，不随滚动走） */
+body:not([data-desk]),body[data-desk=grid]{
+  background-image:radial-gradient(110% 80% at 12% 0%,rgba(255,252,244,.6),rgba(255,252,244,0) 62%),radial-gradient(120% 110% at 100% 100%,rgba(70,52,28,.07),rgba(70,52,28,0) 60%),var(--grain),linear-gradient(var(--gmin) 1px,transparent 1px),linear-gradient(90deg,var(--gmin) 1px,transparent 1px);
+  background-size:auto,auto,220px 220px,28px 28px,28px 28px;
+  background-attachment:fixed,fixed,scroll,scroll,scroll}
+.cassette{filter:var(--dsh-thick)}
+@media (hover:hover) and (pointer:fine){.cassette:hover{filter:drop-shadow(0 1px 1px rgba(28,22,14,.28)) drop-shadow(6px 14px 16px rgba(28,22,14,.17)) drop-shadow(14px 34px 34px rgba(28,22,14,.14))}}
+.hrcpt{filter:var(--dsh-flat)}
+.hfilm{filter:var(--dsh-thick)}
+.hdiy .dt{filter:var(--dsh-card)}
+.binfo{box-shadow:var(--sh)}
+/* 纸的厚度：上沿一道亮边 */
+.hphotos .pp,.icard,.binfo{box-shadow:inset 0 1px 0 rgba(255,255,255,.75),var(--sh)}
+.hphotos .pp.blk{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),var(--sh)}
+
+/* 会反光的材质：跟着鼠标走的一点高光 */
+.gl{position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;opacity:var(--go,0);transition:opacity 380ms ease;
+  background:radial-gradient(circle at var(--gx,30%) var(--gy,20%),rgba(255,255,255,.36),rgba(255,255,255,.12) 22%,rgba(255,255,255,0) 52%);mix-blend-mode:screen}
+.ppi{position:relative}
+.hbadge .mcard{overflow:hidden}
+
+/* 挂着的东西：小票只有上面贴着胶带，下半截会被“风”带起来 */
+.hrcpt .rp{transform-origin:50% 0}
+
+/* 按下：压下去一点。和悬停“拿起来”是一套 */
+.sp:active{translate:0 1px!important;transition-duration:60ms}
+.hdiy .dt:active{scale:.97}
+.door:active{translate:1px 1px}
+@media (hover:hover) and (pointer:fine){.hbadge:hover{rotate:4deg}}
+
+/* AI 入口：用之前就告诉人“装修中” */
+.askline .wip{align-self:center;font:500 10.5px/1 'Noto Sans SC',sans-serif;color:var(--ink2);padding:3px 6px;border:1px dashed color-mix(in srgb,var(--ink2) 55%,transparent);border-radius:3px;letter-spacing:.06em;white-space:nowrap}
+.askline .askin{width:260px}
+
+/* 数字等宽，变化时不跳 */
+.hrcpt .ln>span:first-child{font-variant-numeric:tabular-nums}
+
+/* 首页不显示设计稿式的选中框：这里只说纸和物件的语言 */
+body:has(#home:hover) #sel{display:none!important}

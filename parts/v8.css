@@ -1,0 +1,39 @@
+/* ══════════════════════════════════════════════════════════════════════
+   v8 · 可用性与一致性优化
+   只调整排版、对比度、焦点反馈与移动端触控尺寸；
+   不改动文案、配色、物件造型与任何交互逻辑。
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ① 提问入口：提示文字提亮；获得焦点时改用全站的红蜡笔色划一道 */
+.askline .askin::placeholder{color:color-mix(in srgb,var(--ink2) 78%,transparent)}
+.askline::after{background:color-mix(in srgb,var(--ink) 55%,transparent);height:1.5px}
+.askline:focus-within label{color:var(--ink)}
+.askline:focus-within::after{background:var(--marker);height:2px}
+.hname .asksug button{font-size:13px;padding:2px 0 3px;border-radius:2px;transition:color 160ms ease,border-color 160ms ease}
+.hname .asksug button:focus-visible{outline:2px solid var(--marker);outline-offset:3px}
+
+/* ② 区块标题：标题与说明顶端对齐，说明不再悬在标题右侧半空 */
+.head{align-items:start;gap:8px 48px}
+.head h2{line-height:1.2}
+
+/* ⑤ 移动端：提问区改竖排居中，与标题同轴；提示语不再挤成一行 */
+@media (max-width:899px){
+  .askline{flex-direction:column;align-items:center;gap:6px;width:min(340px,88vw);margin-top:26px}
+  .askline label{font-size:13px;letter-spacing:.06em}
+  .askline .askin{width:100%;height:38px;line-height:38px;font-size:16px;text-align:center}
+  .hname .asksug{flex-wrap:wrap;gap:10px 16px;margin-top:4px}
+  .hname .asksug button{font-size:12.5px}
+}
+
+/* ⑥ 移动端：工牌前置到照片之后，About 入口在前两屏内出现 */
+@media (max-width:899px){
+  .hbadge{order:2;scale:.88;transform-origin:50% 0;margin-bottom:-34px}
+}
+
+/* ⑧ 移动端：底部留白给固定工具钮让位；小屏物件不越出安全宽度 */
+@media (max-width:899px){
+  .home{padding-bottom:176px}
+  .traytog{bottom:16px}
+  .hphotos{width:min(330px,100%)}
+  .hcards{width:min(300px,100%)}
+}
