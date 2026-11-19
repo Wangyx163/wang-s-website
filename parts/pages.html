@@ -165,9 +165,16 @@
 <!-- Projects -->
 <section class="page" data-page="projects" aria-labelledby="pt-proj" hidden>
   <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
-  <div class="ptitle"><h1 id="pt-proj">Projects</h1><p>发过的论文，和正在做的东西。</p></div>
-  <div class="pjbar" role="group" aria-label="筛选"><button type="button" class="pjf on" data-f="all" aria-pressed="true">全部</button><button type="button" class="pjf" data-f="paper" aria-pressed="false">论文 <b>3</b></button><button type="button" class="pjf" data-f="build" aria-pressed="false">项目 <b>1</b></button></div>
+  <div class="ptitle"><h1 id="pt-proj">Projects</h1><p>发过的论文，和做事情时写下的文章。</p></div>
+  <div class="shbar pjtop"><div class="pjbar" role="group" aria-label="筛选" id="pjf"></div><div class="devbar"><button type="button" class="devbtn" data-dev="post-add">＋ 写一篇</button></div></div>
   <div class="pjboard" id="pjboard"></div>
+</section>
+
+<!-- 文章：#/p/<id> -->
+<section class="page" data-page="post" aria-labelledby="pt-post" hidden>
+  <div class="pv-prog" aria-hidden="true"></div>
+  <a class="goback" href="#/projects"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到 Projects</a>
+  <div class="pv-wrap" id="postv"></div>
 </section>
 
 <!-- 信箱：只有 Star 自己看得到 -->

@@ -362,31 +362,81 @@ const COLWORK={
  ln:[['GitHub','https://github.com/Wangyx163/colwork_agent']]};
 function auHTML(a){return a.map(n=>{const bare=n.replace(/[*†]/g,'');return bare===ME?`<b class="me">${esc(n)}</b>`:esc(n)}).join(', ')}
 const lnHTML=ln=>`<nav class="pj-ln" aria-label="链接">${ln.map(([l,u])=>`<a href="${u}" target="_blank" rel="noopener">${l}<span aria-hidden="true"> ↗</span></a>`).join('')}</nav>`;
-function pjRender(){const b=$('#pjboard');if(!b)return;
+/* ── 文章专栏：每个项目 / 实习写成文章，按「项目」「实习」分开，组内按时间排 ── */
+const POSTS=[
+ {id:'colwork',kind:'项目',tag:'ColWork',d:'2026.11.19',u:'',t:'ColWork：会后协作 Agent',
+  sum:'从会议决策，到有人负责、持续协作、可追溯且经过确认的成果。',
+  body:['## 它是做什么的',COLWORK.what,'## 灵感从哪来',COLWORK.why,'## 一场会之后，它怎么走',COLWORK.flow.map(([a,d],i)=>`${i+1}. **${a}**：${d}`).join('\n'),
+   '## 现在能做的',COLWORK.can.map(x=>'- '+x).join('\n'),'## 接下来',COLWORK.next.map(x=>'- '+x).join('\n'),'## 用到的技术',COLWORK.stack.join('、')].join('\n\n'),
+  ln:COLWORK.ln.map(([l,u])=>l+' '+u).join('\n')}];
+const postById=id=>POSTS.find(p=>p.id===id);
+const dnum=d=>{const m=String(d||'').match(/(\d{4})\D+(\d{1,2})(?:\D+(\d{1,2}))?/);return m?+m[1]*1e4+ +m[2]*100+ +(m[3]||0):0};
+const lastOf=p=>Math.max(dnum(p.d),dnum(p.u));
+function readMin(t){t=String(t||'');const n=(t.match(/[㐀-鿿]/g)||[]).length+(t.match(/[A-Za-z]+/g)||[]).length*1.6;return Math.max(1,Math.round(n/380))}
+function mdInline(s){return esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+ .replace(/\[([^\]]+)\]\(((?:https?:\/\/|mailto:)[^\s)]+|#\/[\w/-]*)\)/g,(m,t,u)=>`<a href="${u}"${u.startsWith('#')?'':' target="_blank" rel="noopener"'}>${t}</a>`)}
+function md(src){const L=String(src||'').replace(/\r/g,'').split('\n'),out=[],toc=[];let i=0,para=[];
+ const flush=()=>{if(para.length){out.push(`<p>${mdInline(para.reduce((a,b)=>a+(/[A-Za-z0-9,.;:!?]$/.test(a)&&/^[A-Za-z0-9]/.test(b)?' ':'')+b,''))}</p>`);para=[]}};
+ while(i<L.length){const l=L[i],t=l.trim();
+  if(/^```/.test(t)){flush();const buf=[];i++;while(i<L.length&&!/^```/.test(L[i].trim()))buf.push(L[i++]);i++;out.push(`<pre><code>${esc(buf.join('\n'))}</code></pre>`);continue}
+  if(!t){flush();i++;continue}
+  let m;
+  if((m=t.match(/^(#{2,3})\s+(.+)$/))){flush();if(m[1]==='##'){const id='s'+(toc.length+1);toc.push([id,m[2]]);out.push(`<h2 id="${id}">${mdInline(m[2])}</h2>`)}else out.push(`<h3>${mdInline(m[2])}</h3>`);i++;continue}
+  if(/^(-{3,}|\*{3,})$/.test(t)){flush();out.push('<hr>');i++;continue}
+  if((m=t.match(/^!\[([^\]]*)\]\(((?:https?:\/\/)?[\w./%?=&:-]+)\)$/))){flush();out.push(`<figure><img src="${esc(m[2])}" alt="${esc(m[1])}" loading="lazy" decoding="async">${m[1]?`<figcaption>${esc(m[1])}</figcaption>`:''}</figure>`);i++;continue}
+  if(/^>\s?/.test(t)){flush();const buf=[];while(i<L.length&&/^>\s?/.test(L[i].trim()))buf.push(L[i++].trim().replace(/^>\s?/,''));out.push(`<blockquote>${buf.map(x=>`<p>${mdInline(x)}</p>`).join('')}</blockquote>`);continue}
+  if(/^[-*]\s+/.test(t)){flush();const buf=[];while(i<L.length&&/^[-*]\s+/.test(L[i].trim()))buf.push(L[i++].trim().replace(/^[-*]\s+/,''));out.push(`<ul>${buf.map(x=>`<li>${mdInline(x)}</li>`).join('')}</ul>`);continue}
+  if(/^\d+[.、]\s*/.test(t)){flush();const buf=[];while(i<L.length&&/^\d+[.、]\s*/.test(L[i].trim()))buf.push(L[i++].trim().replace(/^\d+[.、]\s*/,''));out.push(`<ol>${buf.map(x=>`<li>${mdInline(x)}</li>`).join('')}</ol>`);continue}
+  para.push(t);i++}
+ flush();return {html:out.join('\n'),toc}}
+const lnParse=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean).map(x=>{const m=x.match(/^(.*?)\s*(https?:\/\/\S+)$/);return m?[m[1]||'链接',m[2]]:null}).filter(Boolean);
+let PJF='all';
+function pjRender(){const b=$('#pjboard'),f=$('#pjf');if(!b)return;
+ const n={paper:PAPERS.length,'项目':POSTS.filter(p=>p.kind==='项目').length,'实习':POSTS.filter(p=>p.kind==='实习').length};
+ if(PJF!=='all'&&!n[PJF])PJF='all';
+ if(f)f.innerHTML=[['all','全部',PAPERS.length+POSTS.length],['paper','论文',n.paper],['项目','项目',n['项目']],['实习','实习',n['实习']]].filter(([k,,c])=>k==='all'||c).map(([k,l,c])=>`<button type="button" class="pjf${PJF===k?' on':''}" data-f="${k}" aria-pressed="${PJF===k}">${l} <b>${c}</b></button>`).join('');
  const P=[...PAPERS].sort((x,y)=>(+y.y)-(+x.y));const notes=[...new Set(P.map(p=>p.note).filter(Boolean))];
- const papers=`<section class="pubs" aria-labelledby="pubs-h"><h2 class="pub-h" id="pubs-h">Publications<span>${P.length}</span></h2><ol class="publ">${P.map(p=>{const main=(p.ln.find(l=>l[0]==='论文')||p.ln[0]||[])[1];
+ const papers=`<section class="pubs" aria-labelledby="pubs-h"${PJF==='all'||PJF==='paper'?'':' hidden'}><h2 class="pub-h" id="pubs-h">Publications<span>${P.length}</span></h2><ol class="publ">${P.map(p=>{const main=(p.ln.find(l=>l[0]==='论文')||p.ln[0]||[])[1];
   return `<li class="pub" id="pj-${p.id}"><span class="pub-y">${p.y}</span><div class="pub-m">
   <h3 class="pub-t" lang="en">${main?`<a href="${main}" target="_blank" rel="noopener">${p.t}</a>`:p.t}</h3>
   <p class="pub-au" lang="en">${auHTML(p.au)}</p>
   <p class="pub-v"><span class="pub-venue">${p.v}</span><span class="pub-kind">${p.kind}</span>${p.ln.map(([l,u])=>`<a href="${u}" target="_blank" rel="noopener">${l}<span aria-hidden="true"> ↗</span></a>`).join('')}</p>
   <details class="pj-ab pub-ab"><summary>摘要</summary><p class="pub-zh">${p.zh}</p><p lang="en">${p.ab}</p><ul class="pj-kw" aria-label="关键词">${p.kw.map(k=>`<li lang="en">${k}</li>`).join('')}</ul></details>
   </div></li>`}).join('')}</ol>${notes.map(n=>`<p class="pub-note">${n}</p>`).join('')}</section>`;
- const c=COLWORK;
- const build=`<article class="pj pj-build" data-k="build" id="pj-colwork">
-  <span class="pj-tape" aria-hidden="true"></span>
-  <header class="pj-h"><span class="pj-v">个人项目</span><span>还在迭代</span></header>
-  <h3 class="pj-t">ColWork<small>会后协作 Agent</small></h3>
-  <p class="pj-lede">从会议决策，到有人负责、持续协作、可追溯且经过确认的成果。</p>
-  <div class="pj-two"><section><h4>它是做什么的</h4><p>${c.what}</p></section><section><h4>灵感从哪来</h4><p>${c.why}</p></section></div>
-  <section><h4>一场会之后，它怎么走</h4><ol class="pj-flow">${c.flow.map(([a,d])=>`<li tabindex="0"><b>${a}</b><span>${d}</span></li>`).join('')}</ol></section>
-  <div class="pj-two"><section><h4>现在能做的</h4><ul class="pj-list">${c.can.map(x=>`<li>${x}</li>`).join('')}</ul></section>
-  <section><h4>接下来</h4><ul class="pj-list next">${c.next.map(x=>`<li>${x}</li>`).join('')}</ul></section></div>
-  <ul class="pj-kw" aria-label="技术">${c.stack.map(k=>`<li>${k}</li>`).join('')}</ul>
-  ${lnHTML(c.ln)}</article>`;
- b.innerHTML=`${papers}<section class="pjs" aria-labelledby="pjs-h"><h2 class="pub-h" id="pjs-h">在做的东西<span>1</span></h2>${build}</section>`;
- const fs=$$('[data-page=projects] .pjf');fs.forEach(f=>f.addEventListener('click',()=>{const v=f.dataset.f;fs.forEach(x=>{x.classList.toggle('on',x===f);x.setAttribute('aria-pressed',x===f)});
-  $('.pubs',b).hidden=v==='build';$('.pjs',b).hidden=v==='paper'}))}
-safe('projects',pjRender);
+ const L=POSTS.filter(p=>PJF==='all'||PJF===p.kind).sort((x,y)=>lastOf(y)-lastOf(x));
+ const item=p=>`<li class="po"><a class="po-a" href="#/p/${p.id}"><span class="po-main"><span class="po-tag">${esc(p.tag||'')}</span><span class="po-t">${esc(p.t)}</span>${p.sum?`<span class="po-s">${esc(p.sum)}</span>`:''}<span class="po-meta"><span>写于 ${esc(p.d||'')}</span>${p.u&&p.u!==p.d?`<span>更新 ${esc(p.u)}</span>`:''}<span>约 ${readMin(p.body)} 分钟</span></span></span><span class="po-go" aria-hidden="true">读全文 →</span></a>
+  <div class="devbar"><button type="button" class="devbtn" data-dev="post-edit" data-id="${p.id}">编辑</button><button type="button" class="devbtn" data-dev="post-del" data-id="${p.id}">删掉</button></div></li>`;
+ const posts=['项目','实习'].map(k=>{const ps=L.filter(p=>p.kind===k);if(!ps.length)return '';
+  return `<section class="posts" aria-labelledby="posts-${k}">${''}<h2 class="pub-h" id="posts-${k}">${k}<span>${ps.length}</span></h2><ol class="pol">${ps.map(item).join('')}</ol></section>`}).join('')||(PJF==='paper'?'':'<section class="posts"><p class="empty">还没有文章。</p></section>');
+ b.innerHTML=papers+(PJF==='paper'?'':posts)}
+safe('projects',()=>{pjRender();const f=$('#pjf');if(f)f.addEventListener('click',e=>{const x=e.target.closest('.pjf');if(!x)return;PJF=x.dataset.f;pjRender()})});
+
+/* 文章页：#/p/<id> */
+let POSTCUR=null,postIO=null;
+function postRender(id){const w=$('#postv');if(!w)return;const p=postById(id);POSTCUR=id;if(postIO){postIO.disconnect();postIO=null}
+ if(!p){w.innerHTML='<div class="pv-none"><p>这篇文章不在了。</p><a href="#/projects">回到 Projects</a></div>';document.title='Projects — Star Wang';return}
+ const {html,toc}=md(p.body);const ln=lnParse(p.ln);
+ const rel=POSTS.filter(x=>x!==p&&x.tag===p.tag&&x.kind===p.kind).sort((x,y)=>lastOf(y)-lastOf(x));
+ const tocList=toc.map(([i,t])=>`<li><button type="button" data-s="${i}">${mdInline(t)}</button></li>`).join('');
+ w.innerHTML=`${toc.length>1?`<aside class="pv-toc" aria-label="目录"><p class="pv-toc-h">目录</p><ol>${tocList}</ol></aside>`:'<span></span>'}
+ <article class="pv" lang="zh-CN">
+  <header class="pv-h"><p class="pv-k"><span class="pv-stamp">${esc(p.kind)}</span><span>${esc(p.tag||'')}</span></p>
+   <h1 id="pt-post">${esc(p.t)}</h1>${p.sum?`<p class="pv-sum">${esc(p.sum)}</p>`:''}
+   <p class="pv-meta"><span>写于 ${esc(p.d||'')}</span>${p.u&&p.u!==p.d?`<span>最近更新 ${esc(p.u)}</span>`:''}<span>约 ${readMin(p.body)} 分钟</span></p></header>
+  ${toc.length>1?`<details class="pv-tocm"><summary>目录</summary><ol>${tocList}</ol></details>`:''}
+  <div class="pv-body">${html}</div>
+  <footer class="pv-f">${ln.length?`<nav class="pv-ln" aria-label="相关链接">${ln.map(([l,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(l)}<span aria-hidden="true"> ↗</span></a>`).join('')}</nav>`:''}
+   ${rel.length?`<section class="pv-rel"><h2>同一个${esc(p.kind)}里</h2><ul>${rel.map(x=>`<li><a href="#/p/${x.id}">${esc(x.t)}</a><span>${esc(x.d||'')}</span></li>`).join('')}</ul></section>`:''}
+   <div class="devbar"><button type="button" class="devbtn" data-dev="post-edit" data-id="${p.id}">编辑这篇</button></div></footer>
+ </article>`;
+ document.title=p.t+' — Star Wang';
+ $$('[data-s]',w).forEach(b=>b.addEventListener('click',()=>{const h=document.getElementById(b.dataset.s);const d=b.closest('details');if(d)d.open=false;requestAnimationFrame(()=>{if(h)h.scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'})})}));
+ if('IntersectionObserver' in window&&toc.length>1){const bs=$$('.pv-toc [data-s]',w);postIO=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)bs.forEach(b=>b.classList.toggle('on',b.dataset.s===e.target.id))})},{rootMargin:'-20% 0px -70% 0px'});toc.forEach(([i])=>{const h=document.getElementById(i);h&&postIO.observe(h)})}
+ postProg()}
+function postSync(){const m=location.hash.match(/^#\/p\/([\w-]+)$/);if(!m)return;const fresh=m[1]!==POSTCUR;postRender(m[1]);if(fresh)scrollTo({top:0,behavior:'instant'})}
+function postProg(){const bar=$('.pv-prog'),a=$('#postv .pv');if(!bar||!a||CURPG!=='post')return;const r=a.getBoundingClientRect(),de=document.documentElement,tot=r.height-innerHeight;const end=Math.ceil(scrollY+innerHeight)>=de.scrollHeight-4;const p=end||tot<=0?1:Math.min(1,Math.max(0,-r.top/tot));bar.style.transform=`scaleX(${p.toFixed(4)})`}
+safe('posts',()=>{let raf=0;addEventListener('scroll',()=>{if(CURPG!=='post'||raf)return;raf=requestAnimationFrame(()=>{raf=0;postProg()})},{passive:true});addEventListener('resize',()=>{if(CURPG==='post')postProg()});
+ addEventListener('hashchange',postSync);document.addEventListener('pagechange',e=>{if(e.detail==='post')postSync()});postSync()});
 
 /* ══════════ v9.2：书架、卡片、内容存储、开发端 / 展示端 ══════════ */
 const STN={reading:'在读',read:'读过',want:'想读'};
@@ -442,9 +492,9 @@ safe('cards9',cardsRender);
 /* 内容：默认写在页面里；我在开发端改过的，存进页面自带的数据库，所有能读数据的人看到的都是新的 */
 const LOCALDEV=location.hostname==='127.0.0.1'&&/[?&]dev\b/.test(location.search);
 const CONTENT_DOC='content/site';
-function contentSnapshot(){return {cards:CARDS.map(c=>({...c})),books:BOOKS.map(b=>({...b})),log:LOG.map(l=>[l[0],l[1]]),qa:QA.map(x=>({...x})),at:new Date().toISOString()}}
-function renderAll(){cardsRender();homeBooksRender();shelfRender();rcptRender(false)}
-function contentApply(d){if(!d)return;if(Array.isArray(d.cards))CARDS.splice(0,CARDS.length,...d.cards);if(Array.isArray(d.books))BOOKS.splice(0,BOOKS.length,...d.books);if(Array.isArray(d.qa))d.qa.forEach(x=>{const o=QA.find(y=>y.id===x.id);if(o)Object.assign(o,x);else QA.splice(QA.length-1,0,x)});
+function contentSnapshot(){return {cards:CARDS.map(c=>({...c})),books:BOOKS.map(b=>({...b})),log:LOG.map(l=>[l[0],l[1]]),qa:QA.map(x=>({...x})),posts:POSTS.map(x=>({...x})),at:new Date().toISOString()}}
+function renderAll(){cardsRender();homeBooksRender();shelfRender();rcptRender(false);safe('pj',pjRender);if(CURPG==='post'&&POSTCUR)postRender(POSTCUR)}
+function contentApply(d){if(!d)return;if(Array.isArray(d.cards))CARDS.splice(0,CARDS.length,...d.cards);if(Array.isArray(d.books))BOOKS.splice(0,BOOKS.length,...d.books);if(Array.isArray(d.posts))POSTS.splice(0,POSTS.length,...d.posts);if(Array.isArray(d.qa))d.qa.forEach(x=>{const o=QA.find(y=>y.id===x.id);if(o)Object.assign(o,x);else QA.splice(QA.length-1,0,x)});
  if(Array.isArray(d.log))LOG.splice(0,LOG.length,...d.log.map(l=>[l[0],l[1],'']));renderAll()}
 async function contentLoad(){if(LOCALDEV){contentApply(lsGet('dev-content'));COVERS=lsGet('dev-covers',{})||{};shelfRender();return}
  await dbReady;if(!DB.db)return;try{const r=await withTO(DB.db.doc(CONTENT_DOC).get());if(r.exists)contentApply(r.data())}catch(e){}
@@ -459,7 +509,7 @@ safe('content',contentLoad);
 /* 编辑框：一个通用的小表单 */
 function shrinkImg(file,max=420){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.82))};im.src=r.result};r.readAsDataURL(file)})}
 function editDialog(title,fields,vals={},opt={}){return new Promise(done=>{let d=$('#ed');if(!d){d=document.createElement('dialog');d.id='ed';d.className='after ed';document.body.append(d)}
- d.innerHTML=`<form class="apane" method="dialog"><h3>${esc(title)}</h3>${opt.tip?`<p class="edtip">${esc(opt.tip)}</p>`:''}<div class="edf">${fields.map(f=>{const v=vals[f.k]??f.def??'';const id='ed-'+f.k;
+ d.classList.toggle('wide',!!opt.wide);d.innerHTML=`<form class="apane" method="dialog"><h3>${esc(title)}</h3>${opt.tip?`<p class="edtip">${esc(opt.tip)}</p>`:''}<div class="edf">${fields.map(f=>{const v=vals[f.k]??f.def??'';const id='ed-'+f.k;
   if(f.type==='select')return `<label class="afield"><span>${f.l}</span><select id="${id}" name="${f.k}">${f.opts.map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${l}</option>`).join('')}</select></label>`;
   if(f.type==='textarea')return `<label class="afield"><span>${f.l}</span><textarea id="${id}" name="${f.k}" rows="${f.rows||3}" placeholder="${esc(f.ph||'')}"${f.req?' required':''}>${esc(v)}</textarea></label>`;
   if(f.type==='color')return `<label class="afield"><span>${f.l}</span><input type="color" id="${id}" name="${f.k}" value="${esc(v||'#5E6A55')}"></label>`;
@@ -477,6 +527,9 @@ const CARD_F=[{k:'k',l:'类型',type:'select',opts:[['句子','句子（一句�
 const BOOK_F=[{k:'st',l:'状态',type:'select',opts:[['reading','在读（会出现在首页）'],['read','读过'],['want','想读']]},{k:'cat',l:'分类',type:'select',opts:BCAT},{k:'t',l:'书名',req:true},{k:'sub',l:'副标题（可空）'},{k:'en',l:'原作名（外文书才填，可空）'},{k:'a',l:'作者 / 译者'},{k:'pub',l:'出版社'},{k:'y',l:'出版时间',ph:'例如 2024.6'},{k:'isbn',l:'ISBN'},
  {k:'q',l:'简介摘句',type:'textarea',rows:2,ph:'从书的官方简介里摘一句原文'},{k:'src',l:'简介来源链接',ph:'豆瓣或出版社的页面'},{k:'srcn',l:'来源名',ph:'豆瓣'},{k:'my',l:'我想到',type:'textarea',rows:2,ph:'读的时候的一句话（可空）'},
  {k:'sk',l:'书脊样式',type:'select',opts:Object.entries(SKN)},{k:'c',l:'纯色书脊的颜色',type:'color'},{k:'cover',l:'封面照片（可选）',type:'file',ph:'拍一张自己手上的书；会压缩到 420px 宽再存'}];
+const POST_F=[{k:'kind',l:'放在哪',type:'select',opts:[['项目','项目'],['实习','实习']]},{k:'tag',l:'项目名 / 实习单位',req:true,ph:'例如 ColWork'},
+ {k:'t',l:'标题',req:true},{k:'d',l:'写于',ph:'2026.11.19'},{k:'u',l:'最近更新（可空）',ph:'2026.11.20'},{k:'sum',l:'一句话摘要',type:'textarea',rows:2},{k:'body',l:'正文',type:'textarea',rows:14,ph:'## 小标题\n\n一段话……\n\n- 列表\n1. 步骤'},{k:'ln',l:'链接（一行一个：名字 网址）',type:'textarea',rows:2,ph:'GitHub https://github.com/…'}];
+const POST_TIP='正文支持：## 小标题、### 小小标题、- 列表、1. 步骤、> 引用、**加粗**、`代码`、[文字](网址)、![说明](图片网址)、``` 代码块、--- 分隔线。空一行分段。';
 const ACT={
  'card-add':async()=>{const r=await editDialog('新卡片',CARD_F,{k:'句子',d:todayStr().slice(5)});if(!r||r.action!=='ok')return;const no=CARDS.reduce((m,c)=>Math.max(m,c.no||0),0)+1;CARDS.unshift({...r.v,no});renderAll();contentSave()},
  'card-edit':async b=>{const c=CARDS.find(x=>String(x.no)===b.dataset.no);if(!c)return;const r=await editDialog(`编辑卡片 No.${c.no}`,CARD_F,c,{del:true});if(!r)return;if(r.action==='del')return ACT['card-del'](b);Object.assign(c,r.v);renderAll();contentSave()},
@@ -488,6 +541,11 @@ const ACT={
  'book-del':async b=>{const i=BOOKS.findIndex(x=>x.id===b.dataset.id);if(i<0||!confirm(`把《${BOOKS[i].t}》从书架上拿掉？`))return;const id=BOOKS[i].id;BOOKS.splice(i,1);if(COVERS[id])await coverSave(id,null);renderAll();contentSave()},
  'log-edit':async()=>{const r=await editDialog('编辑「最近」',[{k:'lines',l:'一行一条：日期 空格 内容',type:'textarea',rows:7,ph:'11.19 照片：新增 4 张'}],{lines:LOG.map(l=>l[0]+' '+l[1]).join('\n')});if(!r||r.action!=='ok')return;
   const L=r.v.lines.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>{const m=x.match(/^(\S+)\s+(.+)$/);return m?[m[1],m[2],'']:[todayStr().slice(5),x,'']});LOG.splice(0,LOG.length,...L);renderAll();contentSave()},
+ 'post-add':async()=>{const r=await editDialog('写一篇',POST_F,{kind:'项目',d:todayStr()},{wide:true,tip:POST_TIP});if(!r||r.action!=='ok')return;
+  const id='p'+Date.now().toString(36);POSTS.push({id,...r.v});renderAll();await contentSave();location.hash='#/p/'+id},
+ 'post-edit':async b=>{const p=postById(b.dataset.id);if(!p)return;const r=await editDialog(`编辑《${p.t}》`,POST_F,p,{wide:true,del:true,tip:POST_TIP});if(!r)return;if(r.action==='del')return ACT['post-del'](b);
+  const was=p.u;Object.assign(p,r.v);if(p.u===was&&p.body!==undefined)p.u=todayStr();renderAll();contentSave()},
+ 'post-del':async b=>{const i=POSTS.findIndex(x=>x.id===b.dataset.id);if(i<0||!confirm(`删掉《${POSTS[i].t}》？`))return;POSTS.splice(i,1);renderAll();contentSave();if(CURPG==='post')location.hash='#/projects'},
  'qa-edit':async()=>{const F=[];QA.forEach((x,i)=>{F.push({k:'a'+i,l:x.l,type:'textarea',rows:3});if(x.id!=='else')F.push({k:'kw'+i,l:'↑ 什么时候用这条（关键词，逗号隔开）'})});
   const V={};QA.forEach((x,i)=>{V['a'+i]=x.a;V['kw'+i]=x.kw});const r=await editDialog('预设回答',F,V,{tip:'可以用：{reading} 在读的书、{done} 读过的几本、{doneN} 读过几本、{idea} 最新的念头、{papers} 论文、{email} 邮箱；[文字](#/shelf) 是站内链接。'});if(!r||r.action!=='ok')return;
   QA.forEach((x,i)=>{if(r.v['a'+i])x.a=r.v['a'+i];if(r.v['kw'+i]!==undefined&&x.id!=='else')x.kw=r.v['kw'+i]});contentSave()},

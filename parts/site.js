@@ -105,14 +105,14 @@ const LOG=[['11.18','照片：新增 4 张，都在悉尼','#/photos'],['11.16',
 
 /* ── 路由：#/、#/photos、#/mind、#/shelf、#/about ── */
 const PAGES={'':'desk',photos:'photos',mind:'mind',shelf:'shelf',projects:'projects',about:'about',inbox:'inbox'};
-const NAVOF={desk:'desk',photos:'desk',mind:'mind',shelf:'shelf',projects:'projects',about:'about',inbox:'inbox'};
+const NAVOF={desk:'desk',photos:'desk',mind:'mind',shelf:'shelf',projects:'projects',post:'projects',about:'about',inbox:'inbox'};
 let CURPG=null;
 function setNav(key){$$('.nav a').forEach(a=>{a.dataset.nav===key?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current')})}
-function route(first){const h=location.hash;if(h&&!h.startsWith('#/'))return;const pg=PAGES[h.replace(/^#\/?/,'')]||'desk';if(pg===CURPG)return;
+function route(first){const h=location.hash;if(h&&!h.startsWith('#/'))return;const key=h.replace(/^#\/?/,'');const pg=/^p\/[\w-]+$/.test(key)?'post':(PAGES[key]||'desk');if(pg===CURPG)return;
  const swap=()=>{$$('.page').forEach(p=>p.hidden=p.dataset.page!==pg);CURPG=pg;window.scrollTo({top:0,behavior:'instant'});setNav(NAVOF[pg]);
   if(pg==='mind')safe('mindshow',()=>{renderPath();renderReader(true)});
   const onDesk=pg==='desk';$('#tray').hidden=!onDesk||!TRAYOPEN;$('#traytog').hidden=!onDesk;$('#trayhint').hidden=!onDesk||!TRAYOPEN;if(!onDesk){if(DIY.tool)setTool(null);$('#sheet').hidden=true;$('#toast').hidden=true}
-  document.title=({desk:'Star Wang',photos:'照片 — Star Wang',mind:'Mind — Star Wang',shelf:'Shelf — Star Wang',projects:'Projects — Star Wang',about:'About — Star Wang',inbox:'信箱 — Star Wang'})[pg];
+  document.title=({desk:'Star Wang',photos:'照片 — Star Wang',mind:'Mind — Star Wang',shelf:'Shelf — Star Wang',projects:'Projects — Star Wang',post:'Projects — Star Wang',about:'About — Star Wang',inbox:'信箱 — Star Wang'})[pg];
   document.dispatchEvent(new CustomEvent('pagechange',{detail:pg}))};
  if(!first&&document.startViewTransition&&!RM.matches)document.startViewTransition(swap);else swap()}
 
