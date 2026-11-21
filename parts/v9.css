@@ -577,17 +577,20 @@ html.dev body::after{content:'开发端 · 只有你看得到';position:fixed;le
 /* ── 书架页：正常的书籍展示 ── */
 .shbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;max-width:1240px;margin:22px auto 0;padding:0 max(calc(var(--vw,1vw) * 4),16px);box-sizing:border-box}
 .shbar .pjbar{margin:0;padding:0}
-.shelfwrap{width:100%;max-width:1240px;margin:0 auto;padding:8px max(calc(var(--vw,1vw) * 4),16px) 90px;box-sizing:border-box}
+.shelfbody{width:100%;max-width:1240px;margin:0 auto;padding:8px max(calc(var(--vw,1vw) * 4),16px) 90px;box-sizing:border-box}
 .shcat{margin-top:34px}
 .shcat-h{display:flex;align-items:baseline;gap:10px;margin:0 0 20px;padding-bottom:8px;border-bottom:1px solid rgba(38,41,37,.16);font:600 15px/1.3 'Noto Serif SC',serif;letter-spacing:.08em;color:var(--ink)}
 .shcat-h span{font:400 12px/1 'Caveat',cursive;font-size:17px;color:var(--ink2);letter-spacing:0}
 .shgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:36px 34px;align-items:start}
-.bco{position:relative;display:grid;grid-template-columns:118px 1fr;gap:18px;outline:none;border-radius:3px;padding:4px}
+.bco{position:relative;outline:none;border-radius:3px;padding:4px}
+.bco-in{display:grid;grid-template-columns:118px 1fr;gap:18px;color:inherit;text-decoration:none;border-radius:3px}
+a.bco-in:focus-visible{outline:2px solid var(--marker);outline-offset:6px}
+.bco.drop .bco-cv{outline:2px dashed var(--marker);outline-offset:3px}
 .bco.lit{animation:booklit 1.8s ease-out}
 .bco-cv{position:relative;aspect-ratio:2/3;border-radius:2px 4px 4px 2px;overflow:hidden;box-shadow:0 1px 1px rgba(0,0,0,.18),3px 10px 16px -6px rgba(40,30,15,.35);transition:translate 240ms cubic-bezier(.2,.8,.2,1),box-shadow 240ms}
 .bco-cv::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.22) 0,rgba(255,255,255,.14) 4%,rgba(0,0,0,.05) 7%,rgba(0,0,0,0) 12%),linear-gradient(rgba(255,255,255,.08),rgba(0,0,0,.06));pointer-events:none}
 .bco-cv img{display:block;width:100%;height:100%;object-fit:cover}
-@media (hover:hover) and (pointer:fine){.bco:hover .bco-cv{translate:0 -4px;box-shadow:0 1px 1px rgba(0,0,0,.18),5px 16px 20px -8px rgba(40,30,15,.38)}}
+@media (hover:hover) and (pointer:fine){a.bco-in:hover h3{text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--ink) 30%,transparent);text-underline-offset:4px}.bco:hover .bco-cv{translate:0 -4px;box-shadow:0 1px 1px rgba(0,0,0,.18),5px 16px 20px -8px rgba(40,30,15,.38)}}
 .cv{position:absolute;inset:0;display:flex;flex-direction:column;padding:14px 12px 12px 16px;background-color:var(--c);color:var(--fc);box-sizing:border-box}
 .cv::before{content:'';position:absolute;inset:0;background:var(--noise);background-size:140px;opacity:.12;mix-blend-mode:multiply;pointer-events:none}
 .cv-top{display:block;height:6px;margin-bottom:14px}
@@ -614,7 +617,7 @@ html.dev body::after{content:'开发端 · 只有你看得到';position:fixed;le
 .bco-src a,.bco-note a,.bco-ref a{color:inherit;text-decoration:underline;text-decoration-color:rgba(38,41,37,.3);text-underline-offset:2px;white-space:nowrap}
 .bco-src a:hover,.bco-note a:hover,.bco-ref a:hover{color:var(--marker);text-decoration-color:currentColor}
 .bco-note{margin:12px 0 0;font:400 12.5px/1.65 'Noto Sans SC',sans-serif;color:var(--ink2)}
-.bco-ref{margin:4px 0 0;font:400 11px/1.4 'Noto Sans SC',sans-serif;color:var(--ink2)}
+.bco-ref{display:flex;gap:12px;margin:10px 0 0;font:400 11.5px/1.4 'Noto Sans SC',sans-serif;color:var(--ink2)}
 .cv-sub{margin-top:5px;font:400 9px/1.4 'Noto Sans SC',sans-serif;opacity:.8}
 .bi-src{margin:4px 0 0;font:400 10.5px/1.4 'Noto Sans SC',sans-serif;color:var(--ink2)}
 .bco-my{margin:10px 0 0;font:400 18px/1.35 'Long Cang','Caveat',cursive;color:#1F2E6A}
@@ -624,8 +627,6 @@ html.dev body::after{content:'开发端 · 只有你看得到';position:fixed;le
 .icard .ic-n::before{content:none}
 
 /* ── AI 分身：预设回答 ── */
-.ans .aa .al{display:block}
-.ans .aa .al+.al{margin-top:4px}
 .ans .aa a{color:var(--marker);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--marker) 40%,transparent);text-underline-offset:3px}
 .ans .aa a:hover{text-decoration-color:currentColor}
 .askdev{margin-top:6px}
@@ -638,12 +639,21 @@ html.dev body::after{content:'开发端 · 只有你看得到';position:fixed;le
 .pnagain:focus-visible{outline:2px solid var(--marker);outline-offset:3px;border-radius:2px}
 .hname .aislot{z-index:2}
 .home .hname:has(.ans){z-index:40}
-.ans{position:relative;padding:14px 40px 12px 18px;background:#FBF8F0;border-radius:2px;box-shadow:0 1px 1px rgba(0,0,0,.08),0 14px 26px -14px rgba(40,30,15,.4);rotate:-.5deg}
-.ans::before{content:'';position:absolute;inset:0;background:var(--noise);background-size:160px;opacity:.08;mix-blend-mode:multiply;pointer-events:none;border-radius:inherit}
-.ans .aa{font-size:15px;line-height:1.7}
-.ans .ax{all:unset;position:absolute;right:8px;top:8px;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;cursor:pointer;font:400 18px/1 'Noto Sans SC',sans-serif;color:var(--ink2)}
-.ans .ax:hover{background:rgba(38,41,37,.07);color:var(--ink)}
-.ans .ax:focus-visible{outline:2px solid var(--marker);outline-offset:1px}
+/* 回答：直接写在方格纸上 */
+.ans{position:relative;padding:0;background:none;box-shadow:none;rotate:none}
+.ans .aa{margin:0;font:400 15px/1.7 'Noto Serif SC',serif;color:#2B2E2A;text-align:left;overflow-wrap:break-word}
+.ans .aa.inked{animation:inkIn 420ms var(--eo) both}
+@keyframes inkIn{from{opacity:0;filter:blur(1.5px)}to{opacity:1;filter:none}}
+.ans .af{display:inline-block;margin:0 0 0 8px;padding:0 5px;border:1px solid rgba(38,41,37,.18);border-radius:2px;font:400 10.5px/1.6 'Noto Sans SC',sans-serif;color:var(--ink2);vertical-align:2px}
+.anav{display:inline-flex;align-items:center;gap:2px;margin-left:8px;vertical-align:0;font:400 12px/1 'IBM Plex Mono',monospace;color:var(--ink2)}
+.anav button,.ans .ax{all:unset;cursor:pointer;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font:400 16px/1 'Noto Sans SC',sans-serif;color:var(--ink)}
+.anav button[disabled]{opacity:.25;cursor:default}
+.ans .ax{margin-left:4px;font-size:15px;color:var(--ink2);vertical-align:-1px}
+.anav button:not([disabled]):hover,.ans .ax:hover{background:rgba(38,41,37,.07)}
+.anav button:focus-visible,.ans .ax:focus-visible{outline:2px solid var(--marker);outline-offset:1px}
+.hname .asksug button.asked{color:var(--ink);border-bottom:1px solid var(--marker)}
+@media (prefers-reduced-motion:reduce){.ans .aa.inked{animation:none}}
+@media (max-width:899px){.ans .aa{font-size:14.5px}}
 .cv.sk-photo .cv-t{white-space:nowrap;font-size:13.5px}
 
 /* ── Publications：紧凑的论文列表，摘要点开再看 ── */
@@ -770,3 +780,70 @@ html.dev body::after{content:'开发端 · 只有你看得到';position:fixed;le
   .pv-body>*{max-width:none}
   .pv-body a::after{content:' (' attr(href) ')';font-size:.8em;color:#666}
 }
+
+/* 正在被拖 / 正在翻的那一摞，临时放到最上层，免得钻到取票机下面 */
+.home .hobj.busy{z-index:30!important}
+
+/* 开发端：正文插图、确认框 */
+.edins{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:0 0 6px}
+.edins-l{font:500 12.5px/1.4 'Noto Sans SC',sans-serif;color:var(--ink2);margin-right:2px}
+.afield-img>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.edins-t{font:400 12px/1.5 'Noto Sans SC',sans-serif;color:var(--ink2)}
+.ed textarea.drop{outline:2px dashed var(--marker);outline-offset:2px}
+.after.ed.wide{width:min(760px,calc(100vw - 32px))}
+.after.askok{width:min(380px,calc(100vw - 32px))}
+.askok-m{margin:4px 0 18px;font:400 15px/1.7 'Noto Sans SC',sans-serif;color:var(--ink)}
+
+/* 贴好了之后的三个去处：各有各的样子，「寄给我」做成一个航空信封 */
+.aopts button{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:14px}
+.ao-i{width:48px;height:36px;fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ao-tx{display:block}
+.aopts .ao-tx>span{margin-top:3px}
+.aopts .ao-send{position:relative;padding:14px 15px 15px;background:#FDFBF4;border:5px solid transparent;border-image:repeating-linear-gradient(-45deg,#C8412B 0 9px,#FDFBF4 9px 15px,#2F5D8C 15px 24px,#FDFBF4 24px 30px) 5;box-shadow:0 1px 2px rgba(43,46,42,.12),0 8px 18px -10px rgba(40,30,15,.35)}
+.aopts .ao-send b{color:var(--marker)}
+.ao-send .ao-i{stroke:var(--marker)}.ao-send .ao-i .st{fill:rgba(200,65,43,.18)}
+.ao-save .ao-i .ph{fill:rgba(43,46,42,.08)}
+.ao-keep .ao-i circle{fill:#C8412B;stroke:#8E2C1D}.ao-keep .ao-i path{stroke-width:2}
+@media (hover:hover) and (pointer:fine){.aopts .ao-send:hover{translate:0 -2px;box-shadow:0 1px 2px rgba(43,46,42,.12),0 12px 22px -10px rgba(40,30,15,.4)}}
+
+.devtip{margin-right:12px;font:400 12px/1.5 'Noto Sans SC',sans-serif;color:var(--ink2)}
+@media (max-width:899px){.devtip{display:none}}
+
+
+/* 封面图：用书本来的比例（你好小朋友是方的）；后来传的图按图片自己的比例 */
+.bco-cv.has-img{background:#E9E5DA}
+.bco-cv.has-img:not([style]){aspect-ratio:auto}
+.bco-cv.has-img:not([style]) img{height:auto}
+.hname .aislot,.hname .aislot .ans{pointer-events:auto}
+
+/* 存成一张图的那一瞬间：动画全停在最终状态，开发端按钮不画进去 */
+html.snap *,html.snap *::before,html.snap *::after{animation:none!important;transition:none!important}
+
+/* 「最近」小票：去掉黄色荧光笔，分类单独一行，访客那行用小票的红色副墨 */
+.hrcpt .rp{padding:20px 16px 26px}
+.hrcpt h4{letter-spacing:.32em;font-size:13.5px}
+.hrcpt .c{font:400 10px/1.6 'IBM Plex Mono',monospace;color:#9A9C93;letter-spacing:.02em}
+.hrcpt hr{margin:9px 0}
+.hrcpt .ln{grid-template-columns:36px 1fr;gap:6px;padding:3px 0;background:none!important}
+.hrcpt .ln+.ln{border-top:1px dotted rgba(110,112,100,.22);padding-top:6px;margin-top:3px}
+.hrcpt .rd{font:400 10.5px/1.75 'IBM Plex Mono',monospace;color:#A2A49B;font-variant-numeric:tabular-nums}
+.hrcpt .rt{display:flex;flex-direction:column;min-width:0}
+.hrcpt .rt b{font:600 11.5px/1.65 'Noto Sans SC',sans-serif;color:#3E403A}
+.hrcpt .rt span{font:400 11px/1.6 'Noto Sans SC',sans-serif;color:#6A6C64;overflow-wrap:anywhere}
+.hrcpt .ln.lit .rd{color:var(--marker)}
+.hrcpt .ln.lit .rt b{color:var(--ink)}
+.hrcpt .rv{margin:0;text-align:center;font:500 11px/1.6 'Noto Sans SC',sans-serif;color:#B5311D;letter-spacing:.04em}
+.hrcpt .rv.new{animation:rvIn 900ms var(--eo) both}
+@keyframes rvIn{from{opacity:0;letter-spacing:.3em}to{opacity:1;letter-spacing:.04em}}
+@media (prefers-reduced-motion:reduce){.hrcpt .rv.new{animation:none}}
+
+/* 签名笔 */
+.sign .spen{position:absolute;left:0;top:0;width:56px;height:52px;pointer-events:none;z-index:3;transform-origin:10px 48px;
+  transform:translate(calc(var(--x,0px) - 10px),calc(var(--y,0px) - 48px)) rotate(var(--r,16deg));transition:transform 280ms var(--eo),opacity 200ms;
+  filter:drop-shadow(1px 3px 2px rgba(20,24,40,.28))}
+.sign .spen.live{transition:opacity 200ms;filter:drop-shadow(3px 7px 4px rgba(20,24,40,.25))}
+.sign .spen svg{display:block;transition:translate 90ms}
+.sign .spen.down svg{translate:-1px 1.5px}
+.hticket:not([data-st=issued]) .sign .spen,.sign .spen.away:not(.live){opacity:0}
+@media (hover:hover) and (pointer:fine){.hticket[data-st=issued] .sign canvas{cursor:none}}
+@media (prefers-reduced-motion:reduce){.sign .spen{transition:opacity 200ms}}

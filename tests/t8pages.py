@@ -45,4 +45,5 @@ async def run(w,h,tag):
         print('errors',errs)
         await b.close()
 if __name__=="__main__":
-    w=int(sys.argv[1]); asyncio.run(run(w,900 if w>=900 else 844,'pd' if w>=900 else 'pm'))
+    os.makedirs('out8',exist_ok=True)
+    w=int(sys.argv[1]) if len(sys.argv)>1 else 1440; asyncio.run(run(w,900 if w>=900 else 844,'pd' if w>=900 else 'pm'))

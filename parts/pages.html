@@ -144,8 +144,8 @@
 <section class="page" data-page="shelf" aria-labelledby="pt-shelf" hidden>
   <a class="goback" href="#/"><svg viewBox="0 0 34 14" aria-hidden="true"><path d="M33 7c-9-3-19-3-30 1M9 1.5 2 7.6l7.4 5"/></svg>回到画板</a>
   <div class="ptitle"><h1 id="pt-shelf">书架</h1><p>在读的、读过的、想读的。</p></div>
-  <div class="shbar"><div class="pjbar shf" role="group" aria-label="筛选" id="shf"></div><div class="devbar"><button type="button" class="devbtn" data-dev="book-add">＋ 加一本书</button></div></div>
-  <div class="shelfwrap" id="shelfBooks"></div>
+  <div class="shbar"><div class="pjbar shf" role="group" aria-label="筛选" id="shf"></div><div class="devbar"><span class="devtip">换封面：把图拖到那本书的封面上，或者复制图片后指着那本书按 Ctrl/⌘+V</span><button type="button" class="devbtn" data-dev="book-add">＋ 加一本书</button></div></div>
+  <div class="shelfbody" id="shelfBooks"></div>
 {{FOUND}}
 </section>
 
@@ -157,7 +157,7 @@
     <div class="bio">
       <h1 id="pt-about">你好，我是 Wang</h1>
       <dl class="contact"><dt>姓名</dt><dd><span class="rnrow"><span class="rn" aria-live="polite">●●●</span><button type="button" class="eye" aria-pressed="false" aria-label="显示真名"><svg class="eo" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="ec" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4 20 20 4"/></svg></button></span></dd><dt>邮箱</dt><dd><a href="mailto:w_wangyi163@163.com">w_wangyi163@163.com</a></dd><dt>Google Scholar</dt><dd><a href="https://scholar.google.com/citations?user=dpUx9HgAAAAJ&amp;hl=zh-CN" target="_blank" rel="noopener">学术主页 ↗</a></dd></dl>
-      <p class="hint">拽一下左边的工牌会晃，点一下翻到背面。</p>
+      <p class="hint">试着拽一拽工牌~</p>
     </div>
   </div>
 </section>
@@ -208,9 +208,9 @@
   <div class="apane" data-p="pick">
     <h3 id="afh">贴好了，然后呢？</h3>
     <div class="aopts">
-      <button type="button" data-a="send"><b>寄给我</b><span>写一条建议、一个想法，或者打个招呼，连同你贴的这些一起寄过去。</span></button>
-      <button type="button" data-a="save"><b>存成一张图</b><span>把你这一版画板存下来，自己留着。</span></button>
-      <button type="button" data-a="keep"><b>就留在这儿</b><span>下次用这台设备打开，它们还在原处。</span></button>
+      <button type="button" data-a="send" class="ao-send"><svg class="ao-i" viewBox="0 0 48 36" aria-hidden="true"><rect x="2" y="4" width="44" height="28" rx="2"/><path d="M3 6l21 15L45 6"/><rect class="st" x="34" y="8" width="8" height="9" rx="1"/></svg><span class="ao-tx"><b>寄给我</b><span>写一句建议、一个想法，或者打个招呼，连同你贴的这些一起寄过来。只有我能看到。</span></span></button>
+      <button type="button" data-a="save" class="ao-save"><svg class="ao-i" viewBox="0 0 48 36" aria-hidden="true"><rect x="9" y="2" width="30" height="32" rx="1.5"/><rect class="ph" x="13" y="6" width="22" height="19"/><path d="M14 23l6-7 5 5 3-3 6 5"/></svg><span class="ao-tx"><b>存成一张图</b><span>把你这一版画板画成一张图，下载下来自己留着。</span></span></button>
+      <button type="button" data-a="keep" class="ao-keep"><svg class="ao-i" viewBox="0 0 48 36" aria-hidden="true"><circle cx="24" cy="11" r="7"/><path d="M24 18v15"/></svg><span class="ao-tx"><b>就留在这儿</b><span>只存在这台设备的浏览器里：下次用它打开还在原处，别人看不到，也不会寄给我。</span></span></button>
     </div>
   </div>
   <form class="apane asend" data-p="send" hidden>

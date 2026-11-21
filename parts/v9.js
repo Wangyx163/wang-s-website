@@ -53,14 +53,24 @@ const bkl=L=>L.map(b=>`《${b.t}》`).join('');
 function qaVars(){const R=BOOKS.filter(b=>b.st==='reading'),D=BOOKS.filter(b=>b.st==='read');const id=CARDS.find(c=>c.k==='想法')||CARDS[0]||{};
  const P=typeof PAPERS!=='undefined'?PAPERS.map(p=>p.t.split(':')[0]).join('、'):'';
  return {reading:R.length?bkl(R):'（这阵子没在读）',done:bkl(D.slice(0,3)),doneN:String(D.length),idea:id.q||'（还没记）',ideaDate:id.d||'',ideaNote:id.n||'',papers:P,email:'\u0001'}}
-function qaHTML(t){const v=qaVars();let h=esc(t.replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m));
+function qaSegs(t){const v=qaVars();let h=esc(t.replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m));
  h=h.replace(/\[([^\]]+)\]\((#\/[a-z]*)\)/g,'<a href="$2">$1</a>').replace(/\u0001/g,`<a href="mailto:${EMAIL}">${EMAIL}</a>`);
- return h.split('\n').filter(x=>x.trim()).map(x=>`<span class="al">${x}</span>`).join('')}
+ return h.split('\n').map(x=>x.trim()).filter(Boolean)}
+const qaHTML=t=>qaSegs(t).join('');
 function qaPick(q){const s=q.toLowerCase();return QA.find(x=>x.kw&&x.kw.split(/[,，]/).map(k=>k.trim().toLowerCase()).filter(Boolean).some(k=>s.includes(k)))||QA.find(x=>x.id==='else')||QA[QA.length-1]}
-function askA(q){q=(q||'').trim();if(!q)return;const box=$('#slips');box.innerHTML='';const el=document.createElement('div');el.className='ans';
- el.innerHTML='<p class="aq"></p><p class="aa thinking">……</p><p class="af">预设回答</p><button type="button" class="ax" aria-label="收起回答">×</button>';el.querySelector('.ax').onclick=()=>{el.classList.remove('in');setTimeout(()=>el.remove(),RM.matches?0:240);$('.askin').focus({preventScroll:true})};el.querySelector('.aq').textContent='问：'+q;box.append(el);requestAnimationFrame(()=>el.classList.add('in'));
- setTimeout(()=>{const a=$('.aa',el);a.classList.remove('thinking');a.innerHTML=qaHTML(qaPick(q).a)},RM.matches?0:420)}
-safe('ask',()=>{$('.askf').onsubmit=e=>{e.preventDefault();const i=$('.askin');askA(i.value);i.value=''};$$('.asksug button').forEach(b=>b.onclick=()=>askA(b.dataset.q))});
+/* 回答直接写在纸上：没有底板、不重复问题；电脑上最多 3 行（正好放进问题和取票机之间），放不下就按句子翻页；手机上回答在文档流里，往下推开别的东西 */
+function askA(q){q=(q||'').trim();if(!q)return;const box=$('#slips');box.innerHTML='';
+ $$('.asksug button').forEach(b=>{const on=b.dataset.q===q;b.classList.toggle('asked',on);b.setAttribute('aria-pressed',on)});
+ const segs=qaSegs(qaPick(q).a);const el=document.createElement('div');el.className='ans';el.setAttribute('role','status');el.setAttribute('aria-label','回答：'+q);
+ const p=document.createElement('p');p.className='aa';el.append(p);box.append(el);
+ const lines=innerWidth<900?6:3;const lh=parseFloat(getComputedStyle(p).lineHeight)||25;const maxH=lh*lines+2;
+ const tail=(i,n)=>`<span class="af">预设回答</span>${n>1?`<span class="anav"><button type="button" class="ap" aria-label="上一页"${i?'':' disabled'}>‹</button><span class="apn">${i+1}/${n}</span><button type="button" class="an" aria-label="下一页"${i<n-1?'':' disabled'}>›</button></span>`:''}<button type="button" class="ax" aria-label="收起回答">×</button>`;
+ const fits=html=>{p.innerHTML=html+tail(0,2);return p.scrollHeight<=maxH};
+ const pages=[];let cur=[];for(const sg of segs){if(!cur.length||fits([...cur,sg].join('')))cur.push(sg);else{pages.push(cur);cur=[sg]}}if(cur.length)pages.push(cur);
+ let at=0;const show=i=>{at=i;p.innerHTML=pages[i].join('')+tail(i,pages.length);p.classList.remove('inked');void p.offsetWidth;p.classList.add('inked')};
+ p.addEventListener('click',e=>{if(e.target.closest('.an')&&at<pages.length-1)show(at+1);else if(e.target.closest('.ap')&&at>0)show(at-1);else if(e.target.closest('.ax')){box.innerHTML='';$$('.asksug button.asked').forEach(b=>{b.classList.remove('asked');b.setAttribute('aria-pressed','false')});$('.askin').focus({preventScroll:true})}});
+ show(0);requestAnimationFrame(()=>el.classList.add('in'))}
+safe('ask',()=>{$('.askf').onsubmit=e=>{e.preventDefault();askA($('.askin').value)};$$('.asksug button').forEach(b=>b.onclick=()=>askA(b.dataset.q))});
 
 /* ── 入口：照片（字、箭头、胶卷）→ 照片页并停在刚才那张；书（书脊、说明卡、书架板）→ Shelf 并停在那本 ── */
 let PH_FOCUS=null,BOOK_FOCUS=null;
@@ -70,12 +80,11 @@ safe('links',()=>{
   if(e.detail==='photos'&&PH_FOCUS!=null){const i=PH_FOCUS;PH_FOCUS=null;const f=$$('#lt .pp')[i];if(f)setTimeout(()=>{f.scrollIntoView({block:'center',behavior:RM.matches?'auto':'smooth'});f.classList.remove('lit');void f.offsetWidth;f.classList.add('lit')},80)}
 })});
 /* ── 最近：小票，只读 ── */
-function rcptRender(fresh){const box=$('#rcpt');if(!box)return;
- let rows=LOG.map(([d,t])=>`<div class="ln"><span>${esc(d)}</span><span>${esc(t)}</span></div>`).join('');
- if(PASS&&PASS.torn){const td=PASS.d===todayStr()?'今天':PASS.d.slice(5);
-  const who=PASS.ord?`你是第 ${PASS.no} 位访客`:`No.${String(PASS.no).padStart(4,'0')} 已入场`;
-  rows=`<div class="ln${fresh?' new':''}"><span>${td}</span><span>${esc(who)}</span></div>`+rows}
- box.innerHTML=`<h4>最近</h4><p class="c">${todayStr()}</p><hr>${rows}<hr><p class="c">共 ${LOG.length+(PASS&&PASS.torn?1:0)} 条</p><button type="button" class="devbtn rcedit" data-dev="log-edit">编辑「最近」</button>`}
+/* 「最近」：一张热敏小票。日期一列，右边先写是哪一类（照片 / 卡片 / Mind），下一行写具体的；取过票的访客多一行红字 */
+function rcptRender(fresh){const box=$('#rcpt');if(!box)return;const now=new Date(),hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+ const rows=LOG.map(([d,t])=>{const m=String(t||'').match(/^([^：:]{1,8})[：:]\s*(.+)$/);return `<div class="ln"><span class="rd">${esc(d)}</span><span class="rt">${m?`<b>${esc(m[1])}</b><span>${esc(m[2])}</span>`:`<span>${esc(t)}</span>`}</span></div>`}).join('');
+ let vis='';if(PASS&&PASS.torn){const td=PASS.d===todayStr()?'今天':PASS.d.slice(5);const who=PASS.ord?`你是第 ${PASS.no} 位访客`:`No.${String(PASS.no).padStart(4,'0')} 已入场`;vis=`<hr><p class="rv${fresh?' new':''}">★ ${td} · ${esc(who)}</p>`}
+ box.innerHTML=`<h4>最近</h4><p class="c">${todayStr()}　${hm}</p><hr>${rows}${vis}<hr><p class="c">共 ${LOG.length} 条</p><button type="button" class="devbtn rcedit" data-dev="log-edit">编辑「最近」</button>`}
 
 /* ══ 入场券 ══
    按取票机上的红钮 → 出票（编号、时间、票码、一小片只属于这张票的星图）
@@ -141,7 +150,19 @@ function setPST(st){PST=st;const h=$('.hticket');h.dataset.st=st;if(st!=='torn')
  $$('#pass .pch').forEach(b=>b.disabled=st!=='issued')}
 /* 手写签名：鼠标移上去是一支钢笔，按住就能写；笔画按比例存，换设备、存成图都一样 */
 const SIGC='#1F2E6A';
+/* 签名的笔：平时搁在签名线右边；鼠标移到签名线上就拿起来，笔尖跟着走；按下去写的时候笔尖压低一点 */
+const PEN_SVG='<svg viewBox="0 0 56 52" width="56" height="52"><g transform="rotate(38 10 48)"><path d="M10 48 7 39.5h6z" fill="#D5D9DE" stroke="#6E747C" stroke-width=".8" stroke-linejoin="round"/><path d="M10 47.2v-5.4" stroke="#6E747C" stroke-width=".7"/><rect x="6.6" y="33" width="6.8" height="7" rx="1.2" fill="#2A2F3A"/><rect x="6" y="8" width="8" height="26" rx="3" fill="#1F2E6A"/><rect x="6" y="20" width="8" height="1.7" fill="#C8A24A"/><rect x="7.6" y="9.5" width="1.4" height="22" rx=".7" fill="rgba(255,255,255,.28)"/><rect x="6.5" y="2.5" width="7" height="6.5" rx="3" fill="#17224D"/><rect x="13.3" y="5.5" width="1.5" height="13" rx=".75" fill="#C8A24A"/></g></svg>';
 function sigWire(){const cv=$('#pass .sign canvas'),rs=$('#pass .sign .rs');if(!cv||!PASS)return;PASS.sig=PASS.sig||[];rs.hidden=!PASS.sig.length||PST!=='issued';
+ const sg=cv.parentElement;let pen=$('.spen',sg);if(!pen){pen=document.createElement('span');pen.className='spen';pen.setAttribute('aria-hidden','true');pen.innerHTML=PEN_SVG;sg.append(pen)}
+ const place=(x,y,r)=>{pen.style.setProperty('--x',x.toFixed(1)+'px');pen.style.setProperty('--y',y.toFixed(1)+'px');pen.style.setProperty('--r',r+'deg')};
+ const rest=()=>{pen.classList.remove('live','down');pen.classList.toggle('away',PASS.sig.length>0);place(cv.offsetLeft+cv.offsetWidth-34,cv.offsetTop+cv.offsetHeight-2,16)};
+ const follow=e=>{const r=cv.getBoundingClientRect();if(!r.width)return;place(cv.offsetLeft+(e.clientX-r.left)/r.width*cv.offsetWidth,cv.offsetTop+(e.clientY-r.top)/r.height*cv.offsetHeight,0)};
+ cv.addEventListener('pointerenter',e=>{if(PST!=='issued')return;pen.classList.add('live');follow(e)});
+ cv.addEventListener('pointermove',e=>{if(PST==='issued'&&pen.classList.contains('live'))follow(e)});
+ cv.addEventListener('pointerdown',e=>{if(PST!=='issued')return;pen.classList.add('live','down');follow(e)});
+ const up=e=>{pen.classList.remove('down');if(e.pointerType!=='mouse')rest()};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+ cv.addEventListener('pointerleave',e=>{if(!(e.buttons&1))rest()});
+ requestAnimationFrame(rest);
  const paint=()=>{const r=cv.getBoundingClientRect();if(!r.width)return;const d=devicePixelRatio||1;cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);const x=cv.getContext('2d');x.setTransform(cv.width,0,0,cv.height,0,0);
   x.lineCap=x.lineJoin='round';x.strokeStyle=SIGC;x.lineWidth=1.9/r.height;PASS.sig.forEach(st=>{x.beginPath();x.moveTo(st[0][0],st[0][1]);for(let i=1;i<st.length;i++){const p=st[i-1],q=st[i];x.quadraticCurveTo(p[0],p[1],(p[0]+q[0])/2,(p[1]+q[1])/2)}const l=st[st.length-1];x.lineTo(l[0]+(st.length===1?.004:0),l[1]);x.stroke()})};
  cv._paint=paint;requestAnimationFrame(paint);let cur=null,pid=null,npts=0;
@@ -215,7 +236,7 @@ async function stubPNG(){try{await Promise.all(['20px "Long Cang"','600 16px "IB
  const RB=rng(hash32(PASS.code+'bar'));let bx=0;x.fillStyle='rgba(43,58,46,.86)';const bw=(W-32*S)/100;while(bx<99){const w=[.8,1.2,2,2.6][Math.floor(RB()*4)];x.fillRect(18*S+bx*bw,200*S,w*bw,30*S);bx+=w+[.8,1.2,2][Math.floor(RB()*3)]}
  x.fillStyle='#4A5A4D';x.font=`400 ${8.5*S}px "Noto Sans SC"`;x.fillText('来过 Star Wang 的画板',18*S,244*S);
  return cv.toDataURL('image/png')}
-async function saveFile(url,name,msgEl){const blob=await (await fetch(url)).blob();let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+async function saveFile(url,name,msgEl){let blob;try{blob=url instanceof Blob?url:String(url).startsWith('data:')?dataURLtoBlob(url):await (await fetch(url)).blob()}catch(e){msgEl.textContent='这里暂时存不了，可以长按或右键图片另存。';return}let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
  if(dl){try{await dl.save({filename:name,data:blob});msgEl.textContent='存好了。'}catch(e){msgEl.textContent=e&&e.code==='declined'?'没有存，图还在这儿。':'这里暂时存不了，可以长按或右键图片另存。'}return}
  const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();msgEl.textContent='存好了。'}
 async function keepStub(){let d=$('#keep');if(!d){d=document.createElement('dialog');d.id='keep';d.className='keep';d.setAttribute('aria-label','你的存根');
@@ -252,28 +273,53 @@ function diyUI(){const has=hasDIY(),b=$('#donebtn'),l=$('#dlabel');if(b)b.hidden
 const _dsave9=dsave;dsave=function(){_dsave9();diyUI()};
 const _drender9=drender;drender=function(){_drender9();diyUI()};
 function ghosts(){const h=$('#home'),R=h.getBoundingClientRect(),z=R.width/Math.max(1,h.offsetWidth)||1;
- return $$('#home>.hobj,#home>.hfilm').filter(o=>o.offsetWidth&&!o.closest('[hidden]')).map(o=>{const r=o.getBoundingClientRect();return [Math.round((r.left-R.left)/z),Math.round((r.top-R.top)/z),Math.round(r.width/z),Math.round(r.height/z),o.dataset.name||'胶卷']})}
+ return $$('#home>.hobj,#home>.hfilm').filter(o=>o.offsetWidth&&!o.closest('[hidden]')).map(o=>{const r=o.getBoundingClientRect();return [Math.round((r.left-R.left)/z),Math.round((r.top-R.top)/z),Math.round(r.width/z),Math.round(r.height/z),o.dataset.name||'胶卷',o.dataset.id==='photos'?(($('.pp.top img',o)||$('img',o)||{}).src||''):'']})}
 function boardData(){const h=$('#home');let pts=0;const strokes=[];for(const s of DIY.strokes){const p=s.p.filter((_,i)=>i%2===0||i===s.p.length-1).map(q=>[Math.round(q[0]),Math.round(q[1])]);if(pts+p.length>6000)break;pts+=p.length;strokes.push({p})}
  return {w:h.offsetWidth,h:h.offsetHeight,desk:DIY.desk,items:DIY.items.map(i=>({...i})),strokes,g:ghosts()}}
 const TAPEC=['rgba(222,203,160,.8)','rgba(234,168,160,.75)','rgba(150,168,128,.8)','rgba(158,190,214,.78)'];
 const DESKC={grid:'#EFEBE2',kraft:'#D9BF98',cork:'#C79F74',mat:'#3D5A4B'};
 function svgImg(svg){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='data:image/svg+xml,'+encodeURIComponent(svg.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" '))})}
-async function boardPNG(B,scale=1.2){try{await Promise.all(['20px "Caveat"','14px "Oswald"','18px "Long Cang"','12px "Noto Sans SC"'].map(f=>document.fonts.load(f)))}catch(e){}
+function imgReady(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+const stampNow=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`};
+/* 存成一张图：把首页这张画板连同你贴的东西，按网页本来的样子画下来。
+   做法是把画板放进 SVG 再画到画布上（html-to-image）；手写体等字体从 fonts/export.css 带进去，宋体、黑体用系统自带的 */
+let H2I=null;const loadH2I=()=>H2I||(H2I=new Promise((res,rej)=>{if(window.htmlToImage)return res(window.htmlToImage);const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+ sc.onload=()=>window.htmlToImage?res(window.htmlToImage):rej(new Error('lib'));sc.onerror=()=>{H2I=null;rej(new Error('lib'))};document.head.append(sc)}));
+let XFONT=null;const exportFonts=()=>XFONT||(XFONT=fetch('fonts/export.css').then(r=>r.ok?r.text():'').catch(()=>''));
+async function pagePNG(){const [lib,css]=await Promise.all([loadH2I(),exportFonts()]);const home=$('#home'),root=document.documentElement;
+ root.classList.add('snap');
+ try{await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  const bs=getComputedStyle(document.body),w=home.offsetWidth,pr=Math.min(2,Math.max(1,1800/w));
+  const h=Math.ceil(Math.max(home.offsetHeight,...$$('.hobj',home).map(o=>o.offsetTop+o.offsetHeight))+28);
+  const skip=new Set(['devbar','devbtn','tkreset','rcedit','trayhint']);
+  const cv=await lib.toCanvas(home,{width:w,height:h,pixelRatio:pr,fontEmbedCSS:css||undefined,skipFonts:!css,cacheBust:false,
+   filter:n=>!(n.classList&&[...n.classList].some(c=>skip.has(c))),
+   style:{margin:'0',zoom:'1',backgroundColor:bs.backgroundColor,backgroundImage:bs.backgroundImage,backgroundSize:bs.backgroundSize,backgroundRepeat:bs.backgroundRepeat}});
+  /* 底下接一条纸边，右下角写上存图的时间，不压到画板上的东西 */
+  const F=44,out=document.createElement('canvas');out.width=cv.width;out.height=cv.height+Math.round(F*pr);const x=out.getContext('2d'),dark=document.body.dataset.desk==='mat';
+  x.fillStyle=bs.backgroundColor||'#EFEBE2';x.fillRect(0,0,out.width,out.height);x.drawImage(cv,0,0);x.save();x.scale(pr,pr);
+  x.strokeStyle=dark?'rgba(238,240,232,.25)':'rgba(60,60,50,.18)';x.setLineDash([4,4]);x.beginPath();x.moveTo(24,h+.5);x.lineTo(w-24,h+.5);x.stroke();x.setLineDash([]);
+  x.font='500 13px "IBM Plex Mono", monospace';x.textAlign='right';x.textBaseline='middle';x.fillStyle=dark?'rgba(238,240,232,.72)':'rgba(60,60,50,.62)';x.fillText(stampNow(),w-24,h+F/2+1);x.restore();
+  return out.toDataURL('image/png')}
+ finally{root.classList.remove('snap')}}
+async function boardPNG(B,scale=1.2,plain=false){try{await Promise.race([Promise.all(['20px "Caveat"','14px "Oswald"','18px "Long Cang"','12px "Noto Sans SC"'].map(f=>document.fonts.load(f))),new Promise(r=>setTimeout(r,1500))])}catch(e){}
  const W=B.w||1360,H=B.h||1120,cv=document.createElement('canvas');cv.width=Math.round(W*scale);cv.height=Math.round(H*scale);const x=cv.getContext('2d');x.scale(scale,scale);
  const dark=B.desk==='mat';x.fillStyle=DESKC[B.desk]||DESKC.grid;x.fillRect(0,0,W,H);x.strokeStyle=dark?'rgba(238,240,232,.18)':'rgba(60,50,30,.07)';x.lineWidth=1;
  for(let g=0;g<W;g+=28){x.beginPath();x.moveTo(g+.5,0);x.lineTo(g+.5,H);x.stroke()}for(let g=0;g<H;g+=28){x.beginPath();x.moveTo(0,g+.5);x.lineTo(W,g+.5);x.stroke()}
  x.setLineDash([5,5]);x.strokeStyle=dark?'rgba(238,240,232,.35)':'rgba(60,60,50,.3)';x.fillStyle=dark?'rgba(238,240,232,.55)':'rgba(60,60,50,.45)';x.font='13px "Noto Sans SC", sans-serif';x.textAlign='center';
- (B.g||[]).forEach(([a,b,w,h,l])=>{x.beginPath();x.roundRect?x.roundRect(a,b,w,h,6):x.rect(a,b,w,h);x.stroke();x.fillText(l,a+w/2,b+h/2+4)});x.setLineDash([]);
+ for(const [a,b,w,h,l,src] of (B.g||[])){const im=src&&!plain?await imgReady(src):null;
+  if(im){x.save();x.setLineDash([]);x.shadowColor='rgba(40,30,15,.28)';x.shadowBlur=14;x.shadowOffsetY=6;x.fillStyle='#fff';const p=10,iw=w-2*p,ih=Math.min(h-2*p-26,iw*im.height/im.width);x.fillRect(a,b,w,ih+2*p+26);x.shadowColor='transparent';x.drawImage(im,a+p,b+p,iw,ih);x.restore()}
+  else{x.beginPath();x.roundRect?x.roundRect(a,b,w,h,6):x.rect(a,b,w,h);x.stroke();x.fillText(l,a+w/2,b+h/2+4)}}x.setLineDash([]);
  x.strokeStyle=dark?'#F1EFE6':'#3B403C';x.lineWidth=2.4;x.lineCap=x.lineJoin='round';(B.strokes||[]).forEach(s=>{if(s.p.length>1)x.stroke(new Path2D(spath(s.p)))});
  for(const it of (B.items||[])){x.save();
   if(it.t==='tape'){x.translate(it.x,it.y);x.rotate(it.a*Math.PI/180);x.globalCompositeOperation='multiply';x.fillStyle=TAPEC[it.p%4];x.fillRect(0,-13,it.len,26)}
-  else if(it.t==='st'){const s=(STK.find(q=>q.k===it.k)||STK[0]).svg;const im=await svgImg(s);x.translate(it.x,it.y);x.rotate(it.r*Math.PI/180);if(im)x.drawImage(im,-39,-39,78,78)}
+  else if(it.t==='st'){const s=(STK.find(q=>q.k===it.k)||STK[0]).svg;const im=plain?null:await svgImg(s);x.translate(it.x,it.y);x.rotate(it.r*Math.PI/180);if(im)x.drawImage(im,-39,-39,78,78);else{x.fillStyle='#F4EFE2';x.strokeStyle='rgba(60,50,30,.35)';x.lineWidth=1.5;x.beginPath();x.arc(0,0,30,0,7);x.fill();x.stroke()}}
   else if(it.t==='stamp'){x.translate(it.x,it.y);x.rotate(it.r*Math.PI/180);x.globalAlpha=.85;x.strokeStyle='#C8412B';x.fillStyle='#C8412B';x.lineWidth=3;x.beginPath();x.arc(0,0,46,0,7);x.stroke();x.lineWidth=1.2;x.beginPath();x.arc(0,0,37,0,7);x.stroke();
    x.textAlign='center';x.font='600 14px "Oswald", sans-serif';x.fillText(it.d||'',0,-2);x.font='18px "Long Cang", cursive';x.fillText('来过',0,20)}
   else if(it.t==='note'){x.translate(it.x+88,it.y+78);x.rotate(it.r*Math.PI/180);x.fillStyle=it.c||'#F2E199';x.shadowColor='rgba(48,34,18,.25)';x.shadowBlur=10;x.shadowOffsetY=6;x.fillRect(-88,-78,176,156);x.shadowColor='transparent';
    x.fillStyle='#3B3725';x.font='20px "Caveat", "Long Cang", cursive';x.textAlign='left';let ln='',y=-46;for(const ch of (it.text||'')){if(ch==='\n'||x.measureText(ln+ch).width>148){x.fillText(ln,-74,y);y+=28;ln=ch==='\n'?'':ch;if(y>66)break}else ln+=ch}if(y<=66)x.fillText(ln,-74,y)}
   x.restore()}
- x.fillStyle=dark?'rgba(238,240,232,.7)':'rgba(60,60,50,.6)';x.font='13px "Noto Sans SC", sans-serif';x.textAlign='right';x.fillText(`贴在 Star Wang 的画板上 · ${B.d||todayStr()}`,W-24,H-20);
+ x.fillStyle=dark?'rgba(238,240,232,.7)':'rgba(60,60,50,.6)';x.font='13px "Noto Sans SC", sans-serif';x.textAlign='right';x.fillText(B.t||stampNow(),W-24,H-20);
  return cv.toDataURL('image/png')}
 
 safe('after',()=>{const d=$('#after');if(!d)return;const pane=p=>$$('.apane',d).forEach(x=>x.hidden=x.dataset.p!==p);
@@ -286,9 +332,11 @@ safe('after',()=>{const d=$('#after');if(!d)return;const pane=p=>$$('.apane',d).
  d.addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
   if(a==='pick')pane('pick');
   if(a==='close')d.close();
-  if(a==='keep'){d.close();toast('好，它们会留在原处',()=>{});$('#toastb').hidden=true;setTimeout(()=>$('#toastb').hidden=false,6200)}
+  if(a==='keep'){d.close();toast('好，它们留在这台设备上了',()=>{});$('#toastb').hidden=true;setTimeout(()=>$('#toastb').hidden=false,6200)}
   if(a==='send'){pane('send');await dbReady;$('#anote').textContent=canWrite()?'':'这个页面现在没法直接替你寄出。点「寄出」会打开你的邮件应用，收件人和内容都帮你填好。';setTimeout(()=>$('.asend textarea').focus(),50)}
-  if(a==='save'){done('存成一张图','<span class="wait">正在画……</span>');const url=await boardPNG(boardData());
+  if(a==='save'){done('存成一张图','<span class="wait">正在画……</span>');let url=null;try{url=await pagePNG()}catch(err){url=null}
+   if(!url){const B=boardData();B.t=stampNow();try{url=await boardPNG(B)}catch(err){try{url=await boardPNG(B,1.2,true)}catch(err2){url=null}}}
+   if(!url){$('#adonep').innerHTML='这台设备上画不出来，换个浏览器试试，或者直接截个图。';$('.adone .arow',d).innerHTML='<button type="button" class="ago" data-a="close">好</button>';return}
    $('#adonep').innerHTML=`<img src="${url}" alt="你贴过的画板" style="width:100%;height:auto;border:1px solid rgba(0,0,0,.08)"><span class="msg" style="display:block;margin-top:8px"></span>`;
    const row=$('.adone .arow',d);row.innerHTML='<button type="button" class="aback" data-a="close">关闭</button><button type="button" class="ago sv">存下来</button>';
    $('.sv',row).onclick=()=>saveFile(url,`我贴的画板-${todayStr()}.png`,$('#adonep .msg'))}});
@@ -320,7 +368,7 @@ async function inboxLoad(){const sum=$('#ibsum'),list=$('#iblist'),stats=$('#ibs
   list.innerHTML=all.map((it,k)=>`<article class="ibl" data-k="${k}"><header><b>${esc({建议:'建议',想法:'想法',招呼:'招呼'}[it.kind]||it.kind)}</b><time>${esc(it.at.slice(0,16).replace('T',' '))}</time></header>${it.text?`<p>${esc(it.text)}</p>`:''}${it.sign?`<span class="sg">—— ${esc(it.sign)}</span>`:''}<img alt="来信附带的画板" hidden><button type="button" class="del">删掉这封</button></article>`).join('');
   lsSet(IBSEEN,all[0]?all[0].at:'');$('#nbadge').textContent='';
   for(const [k,it] of all.entries()){if(!it.board||!(it.board.items||[]).length&&!(it.board.strokes||[]).length)continue;const img=$(`.ibl[data-k="${k}"] img`,list);boardPNG(it.board,.5).then(u=>{img.src=u;img.hidden=false})}
-  list.onclick=async e=>{const b=e.target.closest('.del');if(!b)return;const it=all[+b.closest('.ibl').dataset.k];if(!confirm('删掉这封信？删了就找不回来了。'))return;
+  list.onclick=async e=>{const b=e.target.closest('.del');if(!b)return;const it=all[+b.closest('.ibl').dataset.k];if(!await askOk('删掉这封信？删了就找不回来了。'))return;
    try{const r=await withTO(DB.db.doc('letters/'+it.uid).get());const items=(r.data().items||[]).filter(x=>x.at!==it.at);await withTO(DB.db.doc('letters/'+it.uid).set({items,n:items.length,last:items.length?items[items.length-1].at:''}));b.closest('.ibl').remove()}catch(err){alert('没删掉，稍后再试。')}}
  }catch(e){sum.textContent='信箱暂时打不开，稍后再试。'}}
 safe('inbox',()=>{ownerInit();document.addEventListener('pagechange',e=>{if(e.detail==='inbox')inboxLoad()});if(CURPG==='inbox')inboxLoad()});
@@ -383,7 +431,7 @@ function md(src){const L=String(src||'').replace(/\r/g,'').split('\n'),out=[],to
   let m;
   if((m=t.match(/^(#{2,3})\s+(.+)$/))){flush();if(m[1]==='##'){const id='s'+(toc.length+1);toc.push([id,m[2]]);out.push(`<h2 id="${id}">${mdInline(m[2])}</h2>`)}else out.push(`<h3>${mdInline(m[2])}</h3>`);i++;continue}
   if(/^(-{3,}|\*{3,})$/.test(t)){flush();out.push('<hr>');i++;continue}
-  if((m=t.match(/^!\[([^\]]*)\]\(((?:https?:\/\/)?[\w./%?=&:-]+)\)$/))){flush();out.push(`<figure><img src="${esc(m[2])}" alt="${esc(m[1])}" loading="lazy" decoding="async">${m[1]?`<figcaption>${esc(m[1])}</figcaption>`:''}</figure>`);i++;continue}
+  if((m=t.match(/^!\[([^\]]*)\]\(((?:https?:\/\/|\/_blob\/|media:)?[\w./%?=&:-]+)\)$/))){flush();const src=mediaSrc(m[2]);if(src)out.push(`<figure><img src="${esc(src)}" alt="${esc(m[1])}" loading="lazy" decoding="async">${m[1]?`<figcaption>${esc(m[1])}</figcaption>`:''}</figure>`);i++;continue}
   if(/^>\s?/.test(t)){flush();const buf=[];while(i<L.length&&/^>\s?/.test(L[i].trim()))buf.push(L[i++].trim().replace(/^>\s?/,''));out.push(`<blockquote>${buf.map(x=>`<p>${mdInline(x)}</p>`).join('')}</blockquote>`);continue}
   if(/^[-*]\s+/.test(t)){flush();const buf=[];while(i<L.length&&/^[-*]\s+/.test(L[i].trim()))buf.push(L[i++].trim().replace(/^[-*]\s+/,''));out.push(`<ul>${buf.map(x=>`<li>${mdInline(x)}</li>`).join('')}</ul>`);continue}
   if(/^\d+[.、]\s*/.test(t)){flush();const buf=[];while(i<L.length&&/^\d+[.、]\s*/.test(L[i].trim()))buf.push(L[i++].trim().replace(/^\d+[.、]\s*/,''));out.push(`<ol>${buf.map(x=>`<li>${mdInline(x)}</li>`).join('')}</ol>`);continue}
@@ -462,17 +510,24 @@ safe('homeBooks',()=>{homeBooksRender();const sh=$('#homeBooks');let cur=-1,t=nu
   if(e.target.closest('#binfo'))go(cur>=0?cur:null);else if(e.target.closest('.ledge,.bookend'))go(null)})});
 
 /* 书架页：正常的书籍展示，能一直加下去 */
-function coverHTML(b){const img=COVERS[b.id];if(img)return `<img src="${img}" alt="《${esc(b.t)}》的封面照片" loading="lazy">`;
+function coverHTML(b){const img=COVERS[b.id]||b.img;if(img)return `<img src="${esc(img)}" alt="《${esc(b.t)}》的封面" loading="lazy" decoding="async">`;
  const sk=b.sk||'plain';return `<span class="cv sk-${sk}"${sk==='plain'?` style="--c:${b.c||'#5E6A55'};--fc:${b.fc||'#F4EFE4'}"`:''} aria-hidden="true"><i class="cv-top"></i><span class="cv-t">${esc(b.t)}</span>${b.sub?`<span class="cv-sub">${esc(b.sub)}</span>`:''}${b.en&&b.en.length<=28?`<span class="cv-en">${esc(b.en)}</span>`:''}<span class="cv-a">${esc(b.sa||'')}</span></span>`}
 const lnk=(u,n)=>u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n||'来源')} ↗</a>`:'';
-function bookCardHTML(b){const meta=[b.a,b.pub,b.y].filter(Boolean).map(esc).join(' · ');
- return `<article class="bco" id="book-${b.id}" tabindex="-1" data-id="${b.id}">
- <div class="bco-cv">${coverHTML(b)}</div>
+/* 书架：保留原来的书卡（封面带书脊阴影，右边是书目和一句简介）；整张卡点开去豆瓣，不再单独放链接 */
+function bookCardHTML(b){const meta=[b.a,b.pub,b.y].filter(Boolean).map(esc).join(' · ');const href=b.src&&/douban\.com/.test(b.src)?b.src:'';
+ const hasImg=!!(COVERS[b.id]||b.img),ar=!COVERS[b.id]&&b.img&&b.ar?` style="aspect-ratio:${esc(b.ar)}"`:'';
+ const inner=`<div class="bco-cv${hasImg?' has-img':''}"${ar}>${coverHTML(b)}</div>
  <div class="bco-m"><span class="bco-st st-${b.st}">${STN[b.st]||''}</span><h3>${esc(b.t)}</h3>${b.sub?`<p class="bco-sub">${esc(b.sub)}</p>`:''}${b.en?`<p class="bco-en">${esc(b.en)}</p>`:''}${meta?`<p class="bco-a">${meta}</p>`:''}
- ${b.q?`<p class="bco-q"><q>${esc(b.q)}</q><span class="bco-src">${b.src?lnk(b.src,b.srcn==='豆瓣'?'豆瓣简介':b.srcn):esc(b.srcn||'')}</span></p>`:''}
- ${b.note?`<p class="bco-note">${esc(b.note)} ${lnk(b.src,b.srcn)}</p>`:''}${b.ref?`<p class="bco-ref">${lnk(b.ref,b.refn)}</p>`:''}
- ${b.my?`<p class="bco-my"><span class="ic-l">我想到</span>${esc(b.my)}</p>`:''}</div>
+ ${b.q?`<p class="bco-q"><q>${esc(b.q)}</q></p>`:''}${b.my?`<p class="bco-my"><span class="ic-l">我想到</span>${esc(b.my)}</p>`:''}</div>`;
+ return `<article class="bco" id="book-${b.id}" tabindex="-1" data-id="${b.id}">${href?`<a class="bco-in" href="${esc(href)}" target="_blank" rel="noopener" title="在豆瓣打开《${esc(b.t)}》">${inner}</a>`:`<div class="bco-in">${inner}</div>`}
  <div class="devbar"><button type="button" class="devbtn" data-dev="book-edit" data-id="${b.id}">编辑</button><button type="button" class="devbtn" data-dev="book-del" data-id="${b.id}">删掉</button></div></article>`}
+safe('coverDrop',()=>{let hov=null;const setCover=async(id,file)=>{if(!id||!file||!/^image\//.test(file.type))return;const bk=bookById(id);if(!bk)return;
+  try{const u=await shrinkImg(file,640);await coverSave(id,u);shelfRender();homeBooksRender&&homeBooksRender();toast(`《${bk.t}》换好封面了`,()=>{})}catch(e){toast('封面没换上，稍后再试',()=>{})}};
+ const on=()=>document.documentElement.classList.contains('dev')&&CURPG==='shelf';
+ document.addEventListener('pointerover',e=>{const g=e.target.closest&&e.target.closest('.bco');hov=g?g.dataset.id:hov},{passive:true});
+ document.addEventListener('dragover',e=>{if(!on())return;const g=e.target.closest&&e.target.closest('.bco');$$('.bco.drop').forEach(x=>x!==g&&x.classList.remove('drop'));if(g&&[...(e.dataTransfer.types||[])].includes('Files')){e.preventDefault();g.classList.add('drop')}});
+ document.addEventListener('drop',e=>{if(!on())return;const g=e.target.closest&&e.target.closest('.bco');$$('.bco.drop').forEach(x=>x.classList.remove('drop'));if(!g)return;const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(f){e.preventDefault();setCover(g.dataset.id,f)}});
+ document.addEventListener('paste',e=>{if(!on()||e.target.closest&&e.target.closest('input,textarea,dialog'))return;const f=[...(e.clipboardData&&e.clipboardData.files||[])].find(x=>/^image\//.test(x.type));const g=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('.bco');const id=(g&&g.dataset.id)||hov;if(f&&id){e.preventDefault();setCover(id,f)}})});
 function shelfRender(){const g=$('#shelfBooks'),f=$('#shf');if(!g)return;const n={all:BOOKS.length};['reading','read','want'].forEach(k=>n[k]=BOOKS.filter(b=>b.st===k).length);
  if(SHF!=='all'&&!n[SHF])SHF='all';
  f.innerHTML=['all','reading','read','want'].filter(k=>k==='all'||n[k]).map(k=>`<button type="button" class="pjf${SHF===k?' on':''}" data-f="${k}" aria-pressed="${SHF===k}">${k==='all'?'全部':STN[k]} <b>${n[k]}</b></button>`).join('');
@@ -507,16 +562,37 @@ async function coverSave(id,img){if(img)COVERS[id]=img;else delete COVERS[id];if
 safe('content',contentLoad);
 
 /* 编辑框：一个通用的小表单 */
+/* ── 插图：线上传进页面自己的素材库（assets），本地测试存在浏览器里 ── */
+let ASSETS_P=null;const assetsNS=()=>ASSETS_P||(ASSETS_P=window.claude&&window.claude.use?Promise.resolve(window.claude.use('assets')).catch(()=>null):Promise.resolve(null));
+const MEDIA=(()=>{try{return JSON.parse(localStorage.getItem('dev-media')||'{}')||{}}catch(e){return {}}})();
+const mediaSrc=u=>String(u).startsWith('media:')?(MEDIA[String(u).slice(6)]||''):u;
+function dataURLtoBlob(u){const i=u.indexOf(','),m=(u.slice(0,i).match(/data:([^;]+)/)||[])[1]||'image/png',bin=atob(u.slice(i+1)),a=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)a[k]=bin.charCodeAt(k);return new Blob([a],{type:m})}
+async function uploadImg(file){if(!/^image\//.test(file.type))throw new Error('只能插图片');
+ if(LOCALDEV){const u=await shrinkImg(file,1200);const id='m'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);MEDIA[id]=u;try{localStorage.setItem('dev-media',JSON.stringify(MEDIA))}catch(e){delete MEDIA[id];throw new Error('本地存储满了')}return 'media:'+id}
+ const A=await assetsNS();if(!A)throw new Error('现在没法上传图片');
+ const blob=(/gif|svg/.test(file.type)||(file.size<=1.5e6&&/png|jpeg|webp/.test(file.type)))?file:dataURLtoBlob(await shrinkImg(file,2000));
+ const r=await A.upload(blob);return r&&r.id?'/_blob/'+r.id:(r&&r.url)}
+function imgWire(ta){const box=ta.closest('.afield').previousElementSibling,fi=box&&$('input[type=file]',box),tip=box&&$('.edins-t',box);let n=0;
+ const ins=t=>{const a=ta.selectionStart??ta.value.length,b=ta.selectionEnd??a,pre=ta.value.slice(0,a),post=ta.value.slice(b);const lead=pre&&!pre.endsWith('\n\n')?(pre.endsWith('\n')?'\n':'\n\n'):'';const tail=post.startsWith('\n\n')?'':(post.startsWith('\n')?'\n':'\n\n');ta.value=pre+lead+t+tail+post;const c=(pre+lead+t).length;ta.setSelectionRange(c,c);ta.dispatchEvent(new Event('input'))};
+ const go=async files=>{for(const file of [...files].filter(x=>/^image\//.test(x.type))){const tag=`![上传中…${++n}]()`;ins(tag);if(tip)tip.textContent='正在上传……';
+   try{const u=await uploadImg(file);ta.value=ta.value.replace(tag,`![](${u})`);if(tip)tip.textContent='插好了。方括号里可以写一句图片说明。'}catch(e){ta.value=ta.value.replace(tag,'');if(tip)tip.textContent='没插上：'+(e&&e.message||'稍后再试')}}};
+ if(box)$('.edins-b',box).onclick=()=>fi.click();if(fi)fi.onchange=()=>{go(fi.files);fi.value=''};
+ ta.addEventListener('paste',e=>{const fs=[...(e.clipboardData&&e.clipboardData.files||[])];if(fs.some(x=>/^image\//.test(x.type))){e.preventDefault();go(fs)}});
+ ta.addEventListener('dragover',e=>{if([...(e.dataTransfer&&e.dataTransfer.types||[])].includes('Files')){e.preventDefault();ta.classList.add('drop')}});
+ ta.addEventListener('dragleave',()=>ta.classList.remove('drop'));
+ ta.addEventListener('drop',e=>{ta.classList.remove('drop');const fs=e.dataTransfer&&e.dataTransfer.files;if(fs&&fs.length){e.preventDefault();ta.focus();go(fs)}})}
+function askOk(msg,ok='删掉'){return new Promise(res=>{let d=$('#askok');if(!d){d=document.createElement('dialog');d.id='askok';d.className='after askok';d.innerHTML='<div class="apane"><p class="askok-m"></p><div class="arow"><span style="flex:1"></span><button type="button" class="aback no">取消</button><button type="button" class="ago yes"></button></div></div>';document.body.append(d)}
+ $('.askok-m',d).textContent=msg;const y=$('.yes',d);y.textContent=ok;let v=false;y.onclick=()=>{v=true;d.close()};$('.no',d).onclick=()=>d.close();d.addEventListener('close',()=>res(v),{once:true});d.showModal();setTimeout(()=>$('.no',d).focus(),30)})}
 function shrinkImg(file,max=420){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.82))};im.src=r.result};r.readAsDataURL(file)})}
 function editDialog(title,fields,vals={},opt={}){return new Promise(done=>{let d=$('#ed');if(!d){d=document.createElement('dialog');d.id='ed';d.className='after ed';document.body.append(d)}
  d.classList.toggle('wide',!!opt.wide);d.innerHTML=`<form class="apane" method="dialog"><h3>${esc(title)}</h3>${opt.tip?`<p class="edtip">${esc(opt.tip)}</p>`:''}<div class="edf">${fields.map(f=>{const v=vals[f.k]??f.def??'';const id='ed-'+f.k;
   if(f.type==='select')return `<label class="afield"><span>${f.l}</span><select id="${id}" name="${f.k}">${f.opts.map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${l}</option>`).join('')}</select></label>`;
-  if(f.type==='textarea')return `<label class="afield"><span>${f.l}</span><textarea id="${id}" name="${f.k}" rows="${f.rows||3}" placeholder="${esc(f.ph||'')}"${f.req?' required':''}>${esc(v)}</textarea></label>`;
+  if(f.type==='textarea')return `${f.img?`<div class="edins"><span class="edins-l" aria-hidden="true">${f.l}</span><button type="button" class="devbtn edins-b">插入图片</button><span class="edins-t">也可以直接粘贴或拖进来，插在光标的位置</span><input type="file" accept="image/*" multiple hidden></div>`:''}<label class="afield${f.img?' afield-img':''}"><span>${f.l}</span><textarea id="${id}" name="${f.k}" rows="${f.rows||3}" placeholder="${esc(f.ph||'')}"${f.req?' required':''}${f.img?' data-img':''}>${esc(v)}</textarea></label>`;
   if(f.type==='color')return `<label class="afield"><span>${f.l}</span><input type="color" id="${id}" name="${f.k}" value="${esc(v||'#5E6A55')}"></label>`;
   if(f.type==='file')return `<label class="afield"><span>${f.l}</span><input type="file" id="${id}" name="${f.k}" accept="image/*">${vals.__img?`<span class="edimg"><img src="${vals.__img}" alt=""><label><input type="checkbox" name="${f.k}__rm"> 去掉这张</label></span>`:''}<small>${esc(f.ph||'')}</small></label>`;
   return `<label class="afield"><span>${f.l}</span><input id="${id}" name="${f.k}" value="${esc(v)}" placeholder="${esc(f.ph||'')}"${f.req?' required':''}></label>`}).join('')}</div>
   <div class="arow">${opt.del?'<button type="button" class="aback eddel">删掉</button>':''}<span style="flex:1"></span><button type="button" class="aback edx">取消</button><button type="submit" class="ago">保存</button></div></form>`;
- const f=$('form',d);let out=null;
+ const f=$('form',d);let out=null;$$('textarea[data-img]',d).forEach(imgWire);
  $('.edx',d).onclick=()=>d.close();const del=$('.eddel',d);if(del)del.onclick=()=>{out={action:'del'};d.close()};
  f.onsubmit=async e=>{e.preventDefault();const v={};for(const fl of fields){const el=f.elements[fl.k];if(fl.type==='file'){const file=el.files&&el.files[0];v[fl.k]=file?await shrinkImg(file).catch(()=>null):undefined;if(f.elements[fl.k+'__rm']&&f.elements[fl.k+'__rm'].checked)v[fl.k]=null}else v[fl.k]=(el.value||'').trim()}
   out={action:'ok',v};d.close()};
@@ -525,31 +601,31 @@ function editDialog(title,fields,vals={},opt={}){return new Promise(done=>{let d
 /* 开发端的动作 */
 const CARD_F=[{k:'k',l:'类型',type:'select',opts:[['句子','句子（一句原话）'],['看到','看到（一个画面）'],['想法','想法（冒出来的念头）']]},{k:'d',l:'日期',ph:'例如 11.19'},{k:'q',l:'记下来的东西',type:'textarea',req:true,ph:'原话、看到的画面，或者那个想法'},{k:'n',l:'我想到',type:'textarea',rows:2,ph:'当时的理解，一两句'},{k:'s',l:'出处',ph:'在哪儿遇见的（可空）'}];
 const BOOK_F=[{k:'st',l:'状态',type:'select',opts:[['reading','在读（会出现在首页）'],['read','读过'],['want','想读']]},{k:'cat',l:'分类',type:'select',opts:BCAT},{k:'t',l:'书名',req:true},{k:'sub',l:'副标题（可空）'},{k:'en',l:'原作名（外文书才填，可空）'},{k:'a',l:'作者 / 译者'},{k:'pub',l:'出版社'},{k:'y',l:'出版时间',ph:'例如 2024.6'},{k:'isbn',l:'ISBN'},
- {k:'q',l:'简介摘句',type:'textarea',rows:2,ph:'从书的官方简介里摘一句原文'},{k:'src',l:'简介来源链接',ph:'豆瓣或出版社的页面'},{k:'srcn',l:'来源名',ph:'豆瓣'},{k:'my',l:'我想到',type:'textarea',rows:2,ph:'读的时候的一句话（可空）'},
- {k:'sk',l:'书脊样式',type:'select',opts:Object.entries(SKN)},{k:'c',l:'纯色书脊的颜色',type:'color'},{k:'cover',l:'封面照片（可选）',type:'file',ph:'拍一张自己手上的书；会压缩到 420px 宽再存'}];
+ {k:'q',l:'一句简介',type:'textarea',rows:2,ph:'从书的官方简介里摘一句'},{k:'src',l:'豆瓣页面（点书会打开它）',ph:'https://book.douban.com/subject/…'},{k:'my',l:'我想到',type:'textarea',rows:2,ph:'读的时候的一句话（可空）'},
+ {k:'sk',l:'书脊样式',type:'select',opts:Object.entries(SKN)},{k:'c',l:'纯色书脊的颜色',type:'color'},{k:'cover',l:'封面（可选，换一张或去掉）',type:'file',ph:'拍一张自己手上的书；会压缩到 420px 宽再存'}];
 const POST_F=[{k:'kind',l:'放在哪',type:'select',opts:[['项目','项目'],['实习','实习']]},{k:'tag',l:'项目名 / 实习单位',req:true,ph:'例如 ColWork'},
- {k:'t',l:'标题',req:true},{k:'d',l:'写于',ph:'2026.11.19'},{k:'u',l:'最近更新（可空）',ph:'2026.11.20'},{k:'sum',l:'一句话摘要',type:'textarea',rows:2},{k:'body',l:'正文',type:'textarea',rows:14,ph:'## 小标题\n\n一段话……\n\n- 列表\n1. 步骤'},{k:'ln',l:'链接（一行一个：名字 网址）',type:'textarea',rows:2,ph:'GitHub https://github.com/…'}];
-const POST_TIP='正文支持：## 小标题、### 小小标题、- 列表、1. 步骤、> 引用、**加粗**、`代码`、[文字](网址)、![说明](图片网址)、``` 代码块、--- 分隔线。空一行分段。';
+ {k:'t',l:'标题',req:true},{k:'d',l:'写于',ph:'2026.11.19'},{k:'u',l:'最近更新（可空）',ph:'2026.11.20'},{k:'sum',l:'一句话摘要',type:'textarea',rows:2},{k:'body',l:'正文',type:'textarea',rows:14,img:true,ph:'## 小标题\n\n一段话……\n\n- 列表\n1. 步骤'},{k:'ln',l:'链接（一行一个：名字 网址）',type:'textarea',rows:2,ph:'GitHub https://github.com/…'}];
+const POST_TIP='插图点正文下面的「插入图片」，或者直接粘贴、拖进来。正文支持：## 小标题、### 小小标题、- 列表、1. 步骤、> 引用、**加粗**、`代码`、[文字](网址)、![说明](图片网址)、``` 代码块、--- 分隔线。空一行分段。';
 const ACT={
  'card-add':async()=>{const r=await editDialog('新卡片',CARD_F,{k:'句子',d:todayStr().slice(5)});if(!r||r.action!=='ok')return;const no=CARDS.reduce((m,c)=>Math.max(m,c.no||0),0)+1;CARDS.unshift({...r.v,no});renderAll();contentSave()},
  'card-edit':async b=>{const c=CARDS.find(x=>String(x.no)===b.dataset.no);if(!c)return;const r=await editDialog(`编辑卡片 No.${c.no}`,CARD_F,c,{del:true});if(!r)return;if(r.action==='del')return ACT['card-del'](b);Object.assign(c,r.v);renderAll();contentSave()},
- 'card-del':async b=>{const i=CARDS.findIndex(x=>String(x.no)===b.dataset.no);if(i<0||!confirm('删掉这张卡？'))return;CARDS.splice(i,1);renderAll();contentSave()},
- 'book-add':async()=>{const r=await editDialog('加一本书',BOOK_F,{st:'reading',cat:'story',sk:'plain',c:'#5E6A55',srcn:'豆瓣'});if(!r||r.action!=='ok')return;const {cover,...v}=r.v;const id='b'+Date.now().toString(36);
+ 'card-del':async b=>{const i=CARDS.findIndex(x=>String(x.no)===b.dataset.no);if(i<0||!await askOk('删掉这张卡？'))return;CARDS.splice(i,1);renderAll();contentSave()},
+ 'book-add':async()=>{const r=await editDialog('加一本书',BOOK_F,{st:'reading',cat:'story',sk:'plain',c:'#5E6A55'});if(!r||r.action!=='ok')return;const {cover,...v}=r.v;const id='b'+Date.now().toString(36);
   BOOKS.push({id,w:28+Math.round(Math.random()*10),h:180+Math.round(Math.random()*36),sf:13,sa:(v.a||'').slice(0,8),...v});if(cover)await coverSave(id,cover);renderAll();contentSave()},
- 'book-edit':async b=>{const bk=bookById(b.dataset.id);if(!bk)return;const r=await editDialog(`编辑《${bk.t}》`,BOOK_F,{...bk,__img:COVERS[bk.id]},{del:true});if(!r)return;if(r.action==='del')return ACT['book-del'](b);
-  const {cover,...v}=r.v;Object.assign(bk,v);if(!bk.sa||bk.sa===bk.a)bk.sa=(bk.a||'').slice(0,8);if(cover!==undefined)await coverSave(bk.id,cover);renderAll();contentSave()},
- 'book-del':async b=>{const i=BOOKS.findIndex(x=>x.id===b.dataset.id);if(i<0||!confirm(`把《${BOOKS[i].t}》从书架上拿掉？`))return;const id=BOOKS[i].id;BOOKS.splice(i,1);if(COVERS[id])await coverSave(id,null);renderAll();contentSave()},
+ 'book-edit':async b=>{const bk=bookById(b.dataset.id);if(!bk)return;const r=await editDialog(`编辑《${bk.t}》`,BOOK_F,{...bk,__img:COVERS[bk.id]||bk.img},{del:true});if(!r)return;if(r.action==='del')return ACT['book-del'](b);
+  const {cover,...v}=r.v;Object.assign(bk,v);if(!bk.sa||bk.sa===bk.a)bk.sa=(bk.a||'').slice(0,8);if(cover===null)bk.img='';if(cover!==undefined)await coverSave(bk.id,cover);renderAll();contentSave()},
+ 'book-del':async b=>{const i=BOOKS.findIndex(x=>x.id===b.dataset.id);if(i<0||!await askOk(`把《${BOOKS[i].t}》从书架上拿掉？`,'拿掉'))return;const id=BOOKS[i].id;BOOKS.splice(i,1);if(COVERS[id])await coverSave(id,null);renderAll();contentSave()},
  'log-edit':async()=>{const r=await editDialog('编辑「最近」',[{k:'lines',l:'一行一条：日期 空格 内容',type:'textarea',rows:7,ph:'11.19 照片：新增 4 张'}],{lines:LOG.map(l=>l[0]+' '+l[1]).join('\n')});if(!r||r.action!=='ok')return;
   const L=r.v.lines.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>{const m=x.match(/^(\S+)\s+(.+)$/);return m?[m[1],m[2],'']:[todayStr().slice(5),x,'']});LOG.splice(0,LOG.length,...L);renderAll();contentSave()},
  'post-add':async()=>{const r=await editDialog('写一篇',POST_F,{kind:'项目',d:todayStr()},{wide:true,tip:POST_TIP});if(!r||r.action!=='ok')return;
   const id='p'+Date.now().toString(36);POSTS.push({id,...r.v});renderAll();await contentSave();location.hash='#/p/'+id},
  'post-edit':async b=>{const p=postById(b.dataset.id);if(!p)return;const r=await editDialog(`编辑《${p.t}》`,POST_F,p,{wide:true,del:true,tip:POST_TIP});if(!r)return;if(r.action==='del')return ACT['post-del'](b);
   const was=p.u;Object.assign(p,r.v);if(p.u===was&&p.body!==undefined)p.u=todayStr();renderAll();contentSave()},
- 'post-del':async b=>{const i=POSTS.findIndex(x=>x.id===b.dataset.id);if(i<0||!confirm(`删掉《${POSTS[i].t}》？`))return;POSTS.splice(i,1);renderAll();contentSave();if(CURPG==='post')location.hash='#/projects'},
+ 'post-del':async b=>{const i=POSTS.findIndex(x=>x.id===b.dataset.id);if(i<0||!await askOk(`删掉《${POSTS[i].t}》？删了就找不回来了。`))return;POSTS.splice(i,1);renderAll();contentSave();if(CURPG==='post')location.hash='#/projects'},
  'qa-edit':async()=>{const F=[];QA.forEach((x,i)=>{F.push({k:'a'+i,l:x.l,type:'textarea',rows:3});if(x.id!=='else')F.push({k:'kw'+i,l:'↑ 什么时候用这条（关键词，逗号隔开）'})});
   const V={};QA.forEach((x,i)=>{V['a'+i]=x.a;V['kw'+i]=x.kw});const r=await editDialog('预设回答',F,V,{tip:'可以用：{reading} 在读的书、{done} 读过的几本、{doneN} 读过几本、{idea} 最新的念头、{papers} 论文、{email} 邮箱；[文字](#/shelf) 是站内链接。'});if(!r||r.action!=='ok')return;
   QA.forEach((x,i)=>{if(r.v['a'+i])x.a=r.v['a'+i];if(r.v['kw'+i]!==undefined&&x.id!=='else')x.kw=r.v['kw'+i]});contentSave()},
- 'pass-reset':()=>{if(!confirm('清掉这台设备上的票，重新取一张？'))return;try{localStorage.removeItem('sw-pass-v1');localStorage.removeItem('sw-pass-prev')}catch(e){}PASS=null;
+ 'pass-reset':async()=>{if(!await askOk('清掉这台设备上的票，重新取一张？','清掉'))return;try{localStorage.removeItem('sw-pass-v1');localStorage.removeItem('sw-pass-prev')}catch(e){}PASS=null;
   const h=$('.hticket');h.classList.remove('guide');h.classList.add('still');passRender();setPST('idle');$('#pnote').textContent='';rcptRender(false);requestAnimationFrame(()=>requestAnimationFrame(()=>h.classList.remove('still')));note9('取票机复位了')}};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-dev]');if(!b||!document.documentElement.classList.contains('dev'))return;e.preventDefault();e.stopPropagation();const f=ACT[b.dataset.dev];f&&f(b)},true);
 

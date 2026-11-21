@@ -6,21 +6,25 @@ function paperStack(root,els,slots,onChange){
  const z=()=>{ORD.forEach((i,pos)=>{els[i].style.zIndex=ORD.length-pos;els[i].classList.toggle('top',pos===0)});onChange&&onChange(ORD[0])};
  const settle=(i,k=210,c=23)=>spring(ST[i],['x','y','r'],slots[ORD.indexOf(i)%slots.length],{k,c,onFrame:()=>ap(i)});
  ORD.forEach((i,pos)=>{Object.assign(ST[i],slots[pos%slots.length]);ap(i)});z();
- const out=(i,nx,ny,after)=>{const W=els[i].offsetWidth,s=ST[i];spring(s,['x','y','r'],{x:s.x+nx*W*.7,y:s.y+ny*W*.25,r:s.r+nx*7},{k:240,c:25,onFrame:()=>ap(i)});setTimeout(after,190)};
- const next=(nx=1,ny=-.12)=>{out(ORD[0],nx,ny,()=>{ORD.push(ORD.shift());z();ORD.forEach(j=>settle(j))})};
- const prev=()=>{out(ORD[ORD.length-1],-1,.05,()=>{ORD.unshift(ORD.pop());z();ORD.forEach(j=>settle(j))})};
+ /* 翻到下一张：不再往右甩出去（会压到旁边的取票机 / 问答区），改成原地抬起一点、往左上一偏，再塞到最底下 */
+ const host=root.closest('.hobj');let bt=0;const busy=ms=>{if(!host)return;host.classList.add('busy');clearTimeout(bt);bt=setTimeout(()=>host.classList.remove('busy'),ms)};
+ const tuck=(i,o,after)=>{const s=ST[i];busy(900);spring(s,['x','y','r'],{x:s.x+o.x,y:s.y+o.y,r:s.r+o.r},{k:260,c:24,onFrame:()=>ap(i)});setTimeout(after,RM.matches?0:150)};
+ const lift=i=>{const W=els[i].offsetWidth;return {x:-W*.08,y:-W*.12,r:-5}};
+ const toBack=()=>{ORD.push(ORD.shift());z();ORD.forEach(j=>settle(j))};
+ const next=dropped=>{if(dropped===true){busy(900);toBack();return}tuck(ORD[0],lift(ORD[0]),toBack)};
+ const prev=()=>{const i=ORD[ORD.length-1];tuck(i,lift(i),()=>{ORD.unshift(ORD.pop());z();ORD.forEach(j=>settle(j))})};
  let d=null;
  root.addEventListener('pointerdown',e=>{if(e.target.closest('textarea,input,button,form'))return;const el=e.target.closest('.sk');if(!el||e.button!==0||d)return;const i=els.indexOf(el);if(ORD[0]!==i)return;
   const sc=el.getBoundingClientRect().width/Math.max(1,el.offsetWidth)||1;
   d={i,id:e.pointerId,sx:e.clientX,sy:e.clientY,ox:ST[i].x,oy:ST[i].y,moved:false,lx:e.clientX,ly:e.clientY,lt:performance.now(),vx:0,vy:0,sc}});
  root.addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;const dx=(e.clientX-d.sx)/d.sc,dy=(e.clientY-d.sy)/d.sc;
-  if(!d.moved){if(Math.hypot(dx,dy)<5)return;d.moved=true;root.setPointerCapture(e.pointerId);els[d.i].classList.add('lifted');els[d.i]._st=ST[d.i];SEL.drag=els[d.i];if(ST[d.i]._raf)cancelAnimationFrame(ST[d.i]._raf)}
+  if(!d.moved){if(Math.hypot(dx,dy)<5)return;d.moved=true;root.setPointerCapture(e.pointerId);els[d.i].classList.add('lifted');host&&host.classList.add('busy');clearTimeout(bt);els[d.i]._st=ST[d.i];SEL.drag=els[d.i];if(ST[d.i]._raf)cancelAnimationFrame(ST[d.i]._raf)}
   const now=performance.now(),dt=Math.max(8,now-d.lt);d.vx=.7*((e.clientX-d.lx)/d.sc/dt)+.3*d.vx;d.vy=.7*((e.clientY-d.ly)/d.sc/dt)+.3*d.vy;d.lx=e.clientX;d.ly=e.clientY;d.lt=now;
   const s=ST[d.i];s.x=d.ox+dx;s.y=d.oy+dy;s.r=slots[0].r+clamp(dx*.025+d.vx*2.5,-10,10);ap(d.i)});
  const end=e=>{if(!d||e.pointerId!==d.id)return;const w=d;d=null;if(!w.moved){next();return}
   els[w.i].classList.remove('lifted');SEL.drag=null;const s=ST[w.i];const dist=Math.hypot(s.x-slots[0].x,s.y-slots[0].y),sp=Math.hypot(w.vx,w.vy);
   s.vx=w.vx*1000;s.vy=w.vy*1000;
-  if(dist>90||sp>.65){const nx=dist>1?s.x/dist:w.vx/sp,ny=dist>1?s.y/dist:w.vy/sp;next(nx,ny)}else settle(w.i,320,26)};
+  busy(900);if(dist>90||sp>.65)next(true);else settle(w.i,320,26)};
  root.addEventListener('pointerup',end);root.addEventListener('pointercancel',end);
  root.addEventListener('keydown',e=>{if(e.target.closest('textarea,input,button'))return;if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();prev()}});
  return {next,prev}}
@@ -68,36 +72,36 @@ safe('cards',()=>{buildStack();
 const BCAT=[['story','人与故事'],['think','思考与创造'],['civ','文明与历史'],['build','创业者与企业'],['life','艺术与日常'],['game','游戏设计与虚拟世界']];
 const DB_='https://book.douban.com/subject/';
 const BOOKS=[
- {id:'b1',cat:'story',st:'reading',t:'风沙星辰',en:'Terre des hommes',a:'圣埃克苏佩里 著，梅思繁 译',pub:'四川文艺出版社',y:'2023.6',isbn:'9787541166648',
-  q:'描绘了微风、沙漠和星辰的温柔诗意',src:DB_+'36425991/',srcn:'豆瓣',sk:'night',w:31,h:194,sa:'圣埃克苏佩里',sf:15},
- {id:'b6',cat:'story',st:'read',t:'咸的玩笑',a:'刘震云',pub:'人民文学出版社',y:'2026.1',isbn:'9787020197620',
-  q:'在嬉笑怒骂间照见普通人的日常',src:DB_+'37833272/',srcn:'豆瓣',sk:'plain',c:'#C9B27C',fc:'#2F2618',w:36,h:200,sa:'刘震云',sf:16},
- {id:'b7',cat:'story',st:'read',t:'比山更高',sub:'自由攀登者的悲情与荣耀',a:'宋明蔚',pub:'上海文艺出版社',y:'2024.6',isbn:'9787532190034',
-  q:'中国自由攀登者用攀登书写各自的命运',src:DB_+'36838903/',srcn:'豆瓣',sk:'plain',c:'#3F5A6B',fc:'#EEF1EC',w:42,h:214,sa:'宋明蔚',sf:16},
- {id:'b3',cat:'think',st:'reading',t:'思辨力35讲',th:'思辨力<b class="up">35</b>讲',sub:'像辩手一样思考',a:'庞颖',pub:'云南人民出版社',y:'2024.5',isbn:'9787222228139',
-  q:'识破逻辑陷阱，迅速提升分析、表达问题的实用指南',src:DB_+'36892666/',srcn:'豆瓣',sk:'debate',w:34,h:172,sa:'庞颖',sf:15},
- {id:'b8',cat:'think',st:'read',t:'控制论与科学方法论',a:'金观涛、华国凡',pub:'广东人民出版社',y:'2025.3（新版，初版 1983）',isbn:'9787218183282',
-  q:'以控制论为核心，融合系统论、信息论等多学科知识',src:DB_+'37235927/',srcn:'豆瓣',sk:'plain',c:'#2F3A33',fc:'#E9E4D4',w:30,h:188,sa:'金观涛 等',sf:12},
- {id:'b2',cat:'think',st:'reading',t:'为什么伟大不能被计划',sub:'对创意、创新和创造的自由探索',en:'Why Greatness Cannot Be Planned: The Myth of the Objective',a:'肯尼斯·斯坦利、乔尔·雷曼 著，彭相珍 译',pub:'中译出版社',y:'2023.4',isbn:'9787500173625',
-  q:'打破了人类世界……依靠目标和计划成事的文化基因',src:DB_+'36357804/',srcn:'豆瓣',sk:'stone',w:29,h:224,sa:'斯坦利 等',sf:11},
- {id:'b9',cat:'civ',st:'read',t:'帆与锚',sub:'澳大利亚简史',en:'A Shorter History of Australia',a:'杰弗里·布莱内 著，鲁伊 译',pub:'广西师范大学出版社',y:'2021.5',isbn:'9787559837127',
-  q:'库克船长发现澳大利亚海岸以来两百多年的澳大利亚史',src:DB_+'35447143/',srcn:'豆瓣',sk:'plain',c:'#B4562F',fc:'#F6EEE2',w:38,h:204,sa:'布莱内',sf:17},
- {id:'b10',cat:'civ',st:'read',t:'最早的帝国',sub:'二里岗文明冲击波',a:'许宏',pub:'大象出版社',y:'2023.7',isbn:'9787571117450',
-  q:'揭示了数百年间中原王朝文明的兴替流变',src:DB_+'36224071/',srcn:'豆瓣',sk:'plain',c:'#7A4E2A',fc:'#EFE4CF',w:33,h:198,sa:'许宏',sf:15},
- {id:'b4',cat:'build',st:'read',t:'腾讯传',th:'腾讯传<small class="yr">1998–2016</small>',sub:'1998—2016：中国互联网公司进化论',a:'吴晓波',pub:'浙江大学出版社',y:'2017.1',isbn:'9787308164207',
-  q:'全景式地记录了腾讯崛起的经历',src:DB_+'26929955/',srcn:'豆瓣',sk:'tencent',w:40,h:196,sa:'吴晓波 著',sf:19},
- {id:'b11',cat:'build',st:'read',t:'创京东',sub:'刘强东亲述创业之路',a:'李志刚',pub:'中信出版社',y:'2015.5',isbn:'9787508651880',
-  q:'1998年，刘强东创业，在中关村经销光磁产品。',src:DB_+'26400900/',srcn:'豆瓣',sk:'plain',c:'#A8322B',fc:'#F6EDE4',w:32,h:200,sa:'李志刚',sf:16},
- {id:'b5',cat:'life',st:'read',t:'你好小朋友',a:'秋山亮二 摄',pub:'青艸堂（复刻版，原版 1983）',y:'2019.6',isbn:'9784909787019',
-  q:'日本摄影师镜头下的80年代中国童年',src:'https://m.thepaper.cn/newsDetail_forward_3239969',srcn:'澎湃新闻',ref:'https://ndlsearch.ndl.go.jp/books/R100000002-I029740253',refn:'馆藏书目',sk:'photo',w:26,h:206,sa:'秋山亮二',sf:13},
- {id:'b12',cat:'life',st:'read',t:'给明天的一句话',sub:'「about关于」系列第 7 册',a:'小红书 编著，24小时工作室 出品',pub:'中信出版社',y:'2025.5',isbn:'9787521775365',
-  q:'一句话给「明天」做注脚，直面人生必答题。',src:DB_+'37378905/',srcn:'豆瓣',sk:'plain',c:'#E7E1D3',fc:'#2B2D2B',w:28,h:190,sa:'about关于',sf:13},
- {id:'b13',cat:'game',st:'read',t:'【创】天工开物',sub:'虚拟世界建构心得',a:'',pub:'',y:'',
-  note:'目前只查到书名和它与网易互娱的关联，作者、出版社和年份还没找到可靠记录。',src:'https://www.tup.com.cn/bookscenter/bookpreface?id=08540601',srcn:'提到它的一篇前言',sk:'plain',c:'#1F2B3A',fc:'#D9C9A0',w:34,h:208,sa:'',sf:14}];
+ {id:'b1',img:'covers/b1.jpg',ar:'480/656',cat:'story',st:'reading',t:'风沙星辰',en:'Terre des hommes',a:'圣埃克苏佩里 著，梅思繁 译',pub:'四川文艺出版社',y:'2023.6',isbn:'9787541166648',
+  q:'描绘了微风、沙漠和星辰的温柔诗意',src:DB_+'36425991/',sk:'night',w:31,h:194,sa:'圣埃克苏佩里',sf:15},
+ {id:'b6',img:'covers/b6.jpg',ar:'480/791',cat:'story',st:'read',t:'咸的玩笑',a:'刘震云',pub:'人民文学出版社',y:'2026.1',isbn:'9787020197620',
+  q:'在嬉笑怒骂间照见普通人的日常',src:DB_+'37833272/',sk:'plain',c:'#C9B27C',fc:'#2F2618',w:36,h:200,sa:'刘震云',sf:16},
+ {id:'b7',img:'covers/b7.jpg',ar:'480/720',cat:'story',st:'read',t:'比山更高',sub:'自由攀登者的悲情与荣耀',a:'宋明蔚',pub:'上海文艺出版社',y:'2024.6',isbn:'9787532190034',
+  q:'中国自由攀登者用攀登书写各自的命运',src:DB_+'36838903/',sk:'plain',c:'#3F5A6B',fc:'#EEF1EC',w:42,h:214,sa:'宋明蔚',sf:16},
+ {id:'b3',img:'covers/b3.jpg',ar:'480/749',cat:'think',st:'reading',t:'思辨力35讲',th:'思辨力<b class="up">35</b>讲',sub:'像辩手一样思考',a:'庞颖',pub:'云南人民出版社',y:'2024.5',isbn:'9787222228139',
+  q:'识破逻辑陷阱，迅速提升分析、表达问题的实用指南',src:DB_+'36892666/',sk:'debate',w:34,h:172,sa:'庞颖',sf:15},
+ {id:'b8',img:'covers/b8.jpg',ar:'480/703',cat:'think',st:'read',t:'控制论与科学方法论',a:'金观涛、华国凡',pub:'广东人民出版社',y:'2025.3（新版，初版 1983）',isbn:'9787218183282',
+  q:'以控制论为核心，融合系统论、信息论等多学科知识',src:DB_+'37235927/',sk:'plain',c:'#2F3A33',fc:'#E9E4D4',w:30,h:188,sa:'金观涛 等',sf:12},
+ {id:'b2',img:'covers/b2.jpg',ar:'480/700',cat:'think',st:'reading',t:'为什么伟大不能被计划',sub:'对创意、创新和创造的自由探索',en:'Why Greatness Cannot Be Planned: The Myth of the Objective',a:'肯尼斯·斯坦利、乔尔·雷曼 著，彭相珍 译',pub:'中译出版社',y:'2023.4',isbn:'9787500173625',
+  q:'打破了人类世界……依靠目标和计划成事的文化基因',src:DB_+'36357804/',sk:'stone',w:29,h:224,sa:'斯坦利 等',sf:11},
+ {id:'b9',img:'covers/b9.jpg',ar:'480/748',cat:'civ',st:'read',t:'帆与锚',sub:'澳大利亚简史',en:'A Shorter History of Australia',a:'杰弗里·布莱内 著，鲁伊 译',pub:'广西师范大学出版社',y:'2021.5',isbn:'9787559837127',
+  q:'库克船长发现澳大利亚海岸以来两百多年的澳大利亚史',src:DB_+'35447143/',sk:'plain',c:'#B4562F',fc:'#F6EEE2',w:38,h:204,sa:'布莱内',sf:17},
+ {id:'b10',img:'covers/b10.jpg',ar:'424/652',cat:'civ',st:'read',t:'最早的帝国',sub:'二里岗文明冲击波',a:'许宏',pub:'大象出版社',y:'2023.7',isbn:'9787571117450',
+  q:'揭示了数百年间中原王朝文明的兴替流变',src:DB_+'36224071/',sk:'plain',c:'#7A4E2A',fc:'#EFE4CF',w:33,h:198,sa:'许宏',sf:15},
+ {id:'b4',img:'covers/b4.jpg',ar:'361/557',cat:'build',st:'read',t:'腾讯传',th:'腾讯传<small class="yr">1998–2016</small>',sub:'1998—2016：中国互联网公司进化论',a:'吴晓波',pub:'浙江大学出版社',y:'2017.1',isbn:'9787308164207',
+  q:'全景式地记录了腾讯崛起的经历',src:DB_+'26929955/',sk:'tencent',w:40,h:196,sa:'吴晓波 著',sf:19},
+ {id:'b11',img:'covers/b11.jpg',ar:'480/693',cat:'build',st:'read',t:'创京东',sub:'刘强东亲述创业之路',a:'李志刚',pub:'中信出版社',y:'2015.5',isbn:'9787508651880',
+  q:'1998年，刘强东创业，在中关村经销光磁产品。',src:DB_+'26400900/',sk:'plain',c:'#A8322B',fc:'#F6EDE4',w:32,h:200,sa:'李志刚',sf:16},
+ {id:'b5',img:'covers/b5.jpg',ar:'480/462',cat:'life',st:'read',t:'你好小朋友',a:'秋山亮二 摄',pub:'青艸堂（复刻版，原版 1983）',y:'2019.6',isbn:'9784909787019',
+  q:'日本摄影师镜头下的80年代中国童年',src:DB_+'33455762/',ref:'https://ndlsearch.ndl.go.jp/books/R100000002-I029740253',refn:'馆藏书目',sk:'photo',w:26,h:206,sa:'秋山亮二',sf:13},
+ {id:'b12',img:'covers/b12.jpg',ar:'480/659',cat:'life',st:'read',t:'给明天的一句话',sub:'「about关于」系列第 7 册',a:'小红书 编著，24小时工作室 出品',pub:'中信出版社',y:'2025.5',isbn:'9787521775365',
+  q:'一句话给「明天」做注脚，直面人生必答题。',src:DB_+'37378905/',sk:'plain',c:'#E7E1D3',fc:'#2B2D2B',w:28,h:190,sa:'about关于',sf:13},
+ {id:'b15',img:'covers/b15.jpg',ar:'480/652',cat:'game',st:'read',t:'用户体验',sub:'筑梦之路·上善若水',a:'网易互动娱乐事业群',pub:'清华大学出版社',y:'2020.12',isbn:'9787302569213',
+  q:'聚焦在体验设计和用户研究两个维度',src:DB_+'35275953/',sk:'plain',c:'#1E3A4C',fc:'#F2E6C8',w:38,h:214,sa:'网易游戏学院',sf:14}];
 /* 书脊：按原书的材质和气质做（布面、哑光纸、亮面、贴标签），不照搬封面图案和出版社标识 */
 function spinesHTML(live,list=BOOKS){
  return `<div class="spines">${list.map((b,k)=>{const i=BOOKS.indexOf(b);return `<button type="button" class="sp sk-${b.sk||'plain'}" data-i="${i}" style="--w:${b.w||30}px;--h:${b.h||190}px;--sf:${b.sf||14}px;--k:${k}${(b.sk||'plain')==='plain'?`;--c:${b.c||'#5E6A55'};--fc:${b.fc||'#F4EFE4'}`:''}" aria-label="${b.t}，${b.a}"><i class="sp-top" aria-hidden="true"></i><span class="st">${b.th||b.t}</span><span class="sa">${b.sa}</span><i class="sp-mk" aria-hidden="true"></i></button>`}).join('')}<span class="bookend" aria-hidden="true"></span></div><div class="ledge" aria-hidden="true"></div>`}
-function binfoHTML(b){const y=(b.y||'').split(/[.（]/)[0];return `<p class="bi-t">${b.t}</p>${b.en?`<p class="bi-en">${b.en}</p>`:''}<p class="bi-a">${[b.a,y].filter(Boolean).join('，')}</p>${b.q?`<p class="bi-i">“${b.q}”</p><p class="bi-src">${b.srcn==='豆瓣'?'摘自豆瓣简介':'摘自'+(b.srcn||'')}</p>`:''}`}
+function binfoHTML(b){const y=(b.y||'').split(/[.（]/)[0];return `<p class="bi-t">${b.t}</p>${b.en?`<p class="bi-en">${b.en}</p>`:''}<p class="bi-a">${[b.a,y].filter(Boolean).join('，')}</p>${b.q?`<p class="bi-i">“${b.q}”</p>`:''}`}
 /* 书：首页“最近在读”和 Shelf 页都在 v9 里渲染 */
 
 /* ── 最近：像 git log 一样的更新记录 ── */

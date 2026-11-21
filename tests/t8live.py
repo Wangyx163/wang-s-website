@@ -51,11 +51,13 @@ async def run(w,h,tag):
         await pg.screenshot(path=f'out8/{tag}_t4_torn.png')
         st=await pg.evaluate("[document.querySelector('.hticket').dataset.st,[...document.querySelectorAll('.pch')].map(b=>b.disabled),document.getElementById('pmbtn').disabled,document.getElementById('pnote').textContent,document.getElementById('rcpt').innerText.slice(0,80)]")
         print('after tear',st)
-        await pg.click('#pass .ps-stub'); await pg.wait_for_timeout(1500)
-        print('keep?',await pg.evaluate("[!!document.getElementById('keep'),document.getElementById('keep')&&document.getElementById('keep').open,document.activeElement.className]"))
-        if not await pg.evaluate("!!(document.getElementById('keep')&&document.getElementById('keep').open)"):
-            await pg.click('#pass .ps-stub'); await pg.wait_for_timeout(1500)
-            print('keep2?',await pg.evaluate("[!!document.getElementById('keep'),document.getElementById('keep')&&document.getElementById('keep').open]"))
+        # 撕下来之后，存根弹窗会自己打开；关掉以后点提示里的链接可以再打开
+        await pg.wait_for_selector('#keep[open]',timeout=5000)
+        print('keep?',await pg.evaluate("[!!document.getElementById('keep'),document.getElementById('keep').open,document.activeElement.className]"))
+        await pg.screenshot(path=f'out8/{tag}_t5_keep.png')
+        await pg.click('#keep .ok'); await pg.wait_for_timeout(300)
+        await pg.click('#pnote .pnagain'); await pg.wait_for_selector('#keep[open]',timeout=3000)
+        print('keep again',await pg.evaluate("document.getElementById('keep').open"))
         await pg.screenshot(path=f'out8/{tag}_t5_keep.png')
         await pg.click('#keep .ok'); await pg.wait_for_timeout(300)
         # 刷新后状态保持

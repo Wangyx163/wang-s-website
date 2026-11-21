@@ -1,3 +1,4 @@
+import os
 import asyncio, sys, os
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 from common import setup, URL
@@ -11,6 +12,7 @@ async def page(p,w,h):
     pg.on('dialog',lambda d:asyncio.ensure_future(d.accept()))
     await setup(pg); return b,pg,errs
 async def main():
+    os.makedirs('out9',exist_ok=True)
     async with async_playwright() as p:
         b,pg,errs=await page(p,1440,900)
         await pg.goto(URL); await pg.evaluate('localStorage.clear()'); await pg.reload(); await pg.wait_for_timeout(1500)
@@ -86,11 +88,11 @@ async def main():
         # 6 开发端：编辑书、编辑预设回答
         b,pg,errs=await page(p,1440,900)
         await pg.goto(URL+'?dev#/shelf'); await pg.evaluate('localStorage.clear()'); await pg.reload(); await pg.wait_for_timeout(1500)
-        await pg.click('[data-dev=book-edit][data-id=b13]'); await pg.wait_for_timeout(400)
+        await pg.click('[data-dev=book-edit][data-id=b15]'); await pg.wait_for_timeout(400)
         print('edit dlg',await pg.evaluate("[document.getElementById('ed').open,document.getElementById('ed-t').value,document.getElementById('ed-cat').value]"))
         await pg.screenshot(path='out9/dev_bookedit.png')
         await pg.select_option('#ed-st','reading'); await pg.click('#ed .ago'); await pg.wait_for_timeout(500)
-        print('b13 st',await pg.evaluate("BOOKS.find(b=>b.id==='b13').st"),await pg.evaluate("JSON.parse(localStorage.getItem('dev-content')).books.length"))
+        print('b15 st',await pg.evaluate("BOOKS.find(b=>b.id==='b15').st"),await pg.evaluate("JSON.parse(localStorage.getItem('dev-content')).books.length"))
         await pg.goto(URL+'?dev'); await pg.wait_for_timeout(1400)
         print('home reading after edit',await pg.evaluate("document.querySelectorAll('#homeBooks .sp').length"))
         await pg.locator('.askdev .devbtn').scroll_into_view_if_needed(); await pg.click('.askdev .devbtn'); await pg.wait_for_timeout(400)
